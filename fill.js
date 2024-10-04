@@ -4,6 +4,7 @@ import { drawToPixelatedCanvas } from './pixelatedCanvas.js';
 document.addEventListener('DOMContentLoaded', function() {
     const poseCheckbox = document.getElementById('poseCheckbox');
     const videoCheckbox = document.getElementById('videoCheckbox');
+    const domesticCheckbox = document.getElementById('domesticCheckbox');
 
     const whiteCheckbox = document.getElementById('whiteCheckbox');
     const blackCheckbox = document.getElementById('blackCheckbox');
@@ -139,8 +140,40 @@ addVideoGroupListeners()
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
+
+    function fillCheckerboard() {
+        const blockSize = 10; // Size of each checkerboard block (10x10)
+    
+        for (let row = 0; row < canvas.height; row += blockSize) {
+            for (let col = 0; col < canvas.width; col += blockSize) {
+                // Alternate between black and white
+                const isBlack = (Math.floor(row / blockSize) + Math.floor(col / blockSize)) % 2 === 0;
+                ctx.fillStyle = isBlack ? 'black' : 'white';
+                ctx.fillRect(col, row, blockSize, blockSize);
+            }
+        }
+    }
+    
     poseCheckbox.addEventListener('change', function() {
         if (this.checked) {
+            domesticCheckbox.checked = false;
+            whiteCheckbox.checked = false; 
+            videoCheckbox.checked = false;
+            blackCheckbox.checked = false;
+            greyCheckbox.checked = false; // Uncheck grey checkbox
+            gradientAnimCheckbox.checked = false; // Uncheck gradient checkbox
+            radialAnimCheckbox.checked = false; // Uncheck radial checkbox
+            radialFadeAnimCheckbox.checked = false; // Uncheck radial fade checkbox
+            gradientControl.stopGradient(); // Stop gradient animation
+            radialGradientControl.stopRadialGradient(); // Stop radial animation
+            radialFadeControl.stopRadialFade(); // Stop radial fade animation
+        } else if (!blackCheckbox.checked && !greyCheckbox.checked) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    });
+    domesticCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            poseCheckbox.checked = false;
             whiteCheckbox.checked = false; 
             videoCheckbox.checked = false;
             blackCheckbox.checked = false;
@@ -157,6 +190,8 @@ addVideoGroupListeners()
     });
     videoCheckbox.addEventListener('change', function() {
         if (this.checked) {
+            domesticCheckbox.checked = false;
+
             poseCheckbox.checked = false; 
             whiteCheckbox.checked = false; 
             blackCheckbox.checked = false;
@@ -174,6 +209,7 @@ addVideoGroupListeners()
         if (this.checked) {
             fillCanvas('white');
             drawToPixelatedCanvas(0)
+            domesticCheckbox.checked = false;
 
             blackCheckbox.checked = false;
             videoCheckbox.checked = false;
@@ -196,6 +232,7 @@ addVideoGroupListeners()
         if (this.checked) {
             fillCanvas('black');
             drawToPixelatedCanvas(0)
+            domesticCheckbox.checked = false;
 
             whiteCheckbox.checked = false;
             videoCheckbox.checked = false;
@@ -219,6 +256,7 @@ addVideoGroupListeners()
             const greyShade = greySlider.value; // Get the current slider value
             fillCanvas(`rgb(${greyShade}, ${greyShade}, ${greyShade})`); // Fill canvas with selected grey shade
             drawToPixelatedCanvas(0)
+            domesticCheckbox.checked = false;
 
             whiteCheckbox.checked = false; // Uncheck white checkbox
             videoCheckbox.checked = false;
@@ -252,6 +290,7 @@ addVideoGroupListeners()
         if (this.checked) {
             fadeControl.startFade();
             videoCheckbox.checked = false;
+            domesticCheckbox.checked = false;
 
             whiteCheckbox.checked = false; // Uncheck white checkbox
             blackCheckbox.checked = false; // Uncheck black checkbox
@@ -277,6 +316,7 @@ addVideoGroupListeners()
         if (this.checked) {
             gradientControl.startGradient();
             videoCheckbox.checked = false;
+            domesticCheckbox.checked = false;
 
             whiteCheckbox.checked = false; // Uncheck white checkbox
             blackCheckbox.checked = false; // Uncheck black checkbox
@@ -300,6 +340,7 @@ addVideoGroupListeners()
     radialAnimCheckbox.addEventListener('change', function() {
         if (this.checked) {
             videoCheckbox.checked = false;
+            domesticCheckbox.checked = false;
 
             radialGradientControl.startRadialGradient();
             whiteCheckbox.checked = false; // Uncheck white checkbox
@@ -325,6 +366,7 @@ addVideoGroupListeners()
     radialFadeAnimCheckbox.addEventListener('change', function() {
         if (this.checked) {
             videoCheckbox.checked = false;
+            domesticCheckbox.checked = false;
 
             radialFadeControl.startRadialFade(); // Start the radial fade animation
             whiteCheckbox.checked = false; // Uncheck white checkbox

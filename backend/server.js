@@ -10,10 +10,46 @@ app.use(express.json()); // Middleware to parse JSON bodies
 
 // Configure your Art-Net options
 const options = {
-    host: '10.0.7.190',
+    host: '10.0.7.155',
     // port: 0, // Art-Net port, typically 6454
 };
 const artnet = require('artnet')(options);
+
+const numberOfChannels = 512; // Adjust to the number of channels you have
+let currentChannel = 180;
+let count = 0 ; 
+
+function sendPattern() {
+    count ++;
+    const data = Array(numberOfChannels).fill(255);  // Set all channels to 255
+    
+    // Set the current channel to 0
+    data[currentChannel] = 0;
+    console.log(`Current Channel: ${currentChannel}`);
+
+    // Set a random channel to 0, different from the current channel
+    let randomChannel = Math.floor(Math.random() * numberOfChannels);
+    while (randomChannel === currentChannel) {
+        randomChannel = Math.floor(Math.random() * numberOfChannels);  // Ensure it's different
+    }
+    data[randomChannel] = 0;
+
+    // Send data over Art-Net (universe 0 by default)
+    artnet.set(0, data, (err) => {
+        if (err) {
+            console.error('Error sending data to Art-Net:', err);
+        }
+    });
+
+    // Move to the next channel, wrapping around to 0 after the last channel
+    // if(count===100){
+    //     currentChannel = (currentChannel + 5) % numberOfChannels;
+    //     count = 0 ;}
+}
+
+// setInterval(sendPattern, 10); // Continuously update pixels every 100ms
+
+
 let csvMapping0;
 
 createCsvMapping()
@@ -30,48 +66,41 @@ let previousValues = {};
 function smoothTransition(prevValue, newValue, factor = 0.3) {
     return prevValue + (newValue - prevValue) * factor;
 }
-
 app.post('/set-dmx', async (req, res) => {
-        try {
-            let { dmxValues } = req.body; // Received all 30 columns brightness values
-            dmxValues = dmxValues.map(row => row.map(value => 255 - value));
-            let universeData = {};
-            const rows = dmxValues.length; // Total rows
+    try {
+        let { dmxValues } = req.body; // Received all 30 columns brightness values
+        dmxValues = dmxValues.map(row => row.map(value => 255 - value));
+        console.log(dmxValues)
+        let universeData = {};
+        const rows = dmxValues.length; // Total rows
+        function clampValue(value) {
+            return Math.max(Math.min(value, 255), 0); // Ensure value is between 0 and 255
+        }
 
-            function applyDimmerSpeed(mapping, brightness) {
-                const adjustedBrightness = Math.round(brightness * mapping.dimmerSpeed);
-                return Math.max(Math.min(adjustedBrightness, 255), 0); // Ensure the brightness does not exceed 255
-            }
-
-            for (let row = 0; row < rows; row++) {
-                const rowData = dmxValues[row];
-                for (let col = 0; col < 29; col++) {
-                    let colIndex = col;
-                    const brightness = rowData[colIndex];
-                    const mapping = csvMapping0[`${row}-${9 - col}`];
-                    if (mapping) {
-                        const { dmxUniverse, dmxChannel, dimmerSpeed } = mapping;
-                        const adjustedBrightness = applyDimmerSpeed(mapping, brightness);
-                        if (!universeData[0]) {
-                            universeData[0] = [];
-                        }
-
-                        const previousValue = previousValues[`${0}-${dmxChannel}`] || 255;
-                        const smoothedBrightness = smoothTransition(previousValue, adjustedBrightness);
-
-                        universeData[0].push({ channel: dmxChannel, value: smoothedBrightness });
-                        previousValues[`${0}-${dmxChannel}`] = smoothedBrightness;
+        for (let row = 0; row < 10; row++) {
+            const rowData = dmxValues[row];
+            for (let col = 0; col < 28; col++) {
+                let colIndex = col;
+                const brightness = clampValue(rowData[colIndex]);
+                const mapping = csvMapping0[`${row}-${col}`];
+                if (mapping) {
+                    const { dmxUniverse, dmxChannel } = mapping;
+                    if (!universeData[0]) {
+                        universeData[0] = [];
                     }
+                    universeData[0].push({ channel: dmxChannel, value: brightness });
                 }
             }
+        }
+        // Your DMX sending logic her
 
             // Send DMX values for each universe
             for (const [universe, channels] of Object.entries(universeData)) {
                 let values = new Array(512).fill(255); // Initialize with zeros for all channels
                 channels.forEach(({ channel, value }) => {
-                    if (channel <= 301) {
+                    // if (channel <= 301) {
                         values[channel - 1] = value; // Subtracting 1 to adjust for zero-based indexing
-                    }
+                    // }
                 });
                 await artnet.set(parseInt(universe), 1, values);
             }

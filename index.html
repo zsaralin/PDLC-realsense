@@ -41,7 +41,9 @@
             <input type="checkbox" id="videoCheckbox2" class="video-group"> 
             <input type="checkbox" id="videoCheckbox3" class="video-group"> 
             <input type="checkbox" id="videoCheckbox4" class="video-group">
-
+            <label>
+                <input type="checkbox" id="domesticCheckbox"> Domestic PDLC (4)
+            </label>
             <div class="checkbox-row">
                 <label>
                     <input type="checkbox" id="whiteCheckbox"> White
@@ -145,7 +147,38 @@
             <label for="maxZSlider">Max Z: <span id="maxZSliderValue">6</span></label>
         </div>
     </div>
+<!-- Add Cutoff Sliders -->
+<div class="checkbox-group">
 
+        <div class="slider-container">   
+            <button class="decrease-btn">-</button>
+            <input type="range" id="rightEdgeCutoffSlider" min="0" max="10">
+            <button class="increase-btn">+</button>
+            <label for="rightEdgeCutoffSlider">Right Edge Cutoff: <span id="rightEdgeCutoffSliderValue">0</span></label>
+        </div>
+
+        <div class="slider-container">   
+            <button class="decrease-btn">-</button>
+            <input type="range" id="leftEdgeCutoffSlider" min="0" max="10">
+            <button class="increase-btn">+</button>
+            <label for="leftEdgeCutoffSlider">Left Edge Cutoff: <span id="leftEdgeCutoffSliderValue">0</span></label>
+        </div>
+
+        <div class="slider-container">   
+            <button class="decrease-btn">-</button>
+            <input type="range" id="topEdgeCutoffSlider" min="0" max="10">
+            <button class="increase-btn">+</button>
+            <label for="topEdgeCutoffSlider">Top Edge Cutoff: <span id="topEdgeCutoffSliderValue">0</span></label>
+        </div>
+
+        <div class="slider-container">   
+            <button class="decrease-btn">-</button>
+            <input type="range" id="bottomEdgeCutoffSlider" min="0" max="10">
+            <button class="increase-btn">+</button>
+            <label for="bottomEdgeCutoffSlider">Bottom Edge Cutoff: <span id="bottomEdgeCutoffSliderValue">0</span></label>
+        </div>
+        </div>
+        
         <button id="saveButton">Save</button>
 
     </div>

@@ -11,8 +11,10 @@ export function setDMXFromPixelCanvas(imageData) {
         for (let col = 0; col < cols; col++) {
             const index = (row * cols + col) * 4; // 4 values per pixel (R, G, B, A)
             const brightness = data[index]; // Use the red channel value (R) directly for brightness
+
             rowBrightness.push(brightness);
         }
+        // Push the row's brightness values to the overall brightnessValues array
         brightnessValues.push(rowBrightness);
     }
 

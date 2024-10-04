@@ -110,7 +110,7 @@ export function drawToPixelatedCanvas(smoothingFactor = null) {
             previousFrame[prevIndex + 3] = smoothA * 255; // Convert alpha back to 0-255 range
         }
     }
-    const pixelImageData = avgCtx.getImageData(0, 0, tempCanvasWidth, tempCanvasHeight);
+    const pixelImageData = avgCtx.getImageData(0, 0, 28, 10);
 
     setDMXFromPixelCanvas(pixelImageData)
 }

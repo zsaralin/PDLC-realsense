@@ -51,7 +51,7 @@ function createCameraElements(numCams) {
 
         const canvas = document.createElement('canvas');
         canvas.id = `canvas0_duplicate`; // Unique ID for each canvas
-
+        
         duplicateContainer.appendChild(videoFeedDuplicate);
         duplicateContainer.appendChild(canvas);
         cameraContainer.appendChild(videoFeed);

@@ -255,3 +255,53 @@ export function drawStickFigure(poses, ctx, canvasId) {
     ctx.drawImage(transparentCanvas, 0, 0);
     drawAndCopyToWhiteCanvas(poses, transparentCtx, canvasId);
 }
+
+
+
+export function drawBodyLine(poses, ctx, canvasId) {
+    const transparentCanvas = document.createElement('canvas');
+    transparentCanvas.width = ctx.canvas.width;
+    transparentCanvas.height = ctx.canvas.height;
+    const transparentCtx = transparentCanvas.getContext('2d');
+
+    if (poses.length === 0) {
+        previousKeypoints[canvasId] = []; // Reset previous keypoints if no pose is detected
+        return; // If no poses are detected, do nothing
+    }
+
+    poses.forEach((pose, personIndex) => {
+        if (!previousKeypoints[canvasId]) previousKeypoints[canvasId] = [];
+
+        // Smooth keypoints
+        const smoothedKeypoints = smoothKeypoints(pose.keypoints, previousKeypoints[canvasId]);
+        previousKeypoints[canvasId] = smoothedKeypoints; // Update previous keypoints for the next frame
+
+        // Find smoothed keypoints for left and right hips
+        const leftHip = smoothedKeypoints.find(kp => kp.name === 'left_hip' && kp.score > 0.2);
+        const rightHip = smoothedKeypoints.find(kp => kp.name === 'right_hip' && kp.score > 0.2);
+
+        // If both hips are detected, draw the body line with the gradient
+        if (leftHip && rightHip) {
+            const centerX = (leftHip.x + rightHip.x) / 2; // Calculate the center x-position of the body
+            const lineWidth = parseInt(bodyWidthSlider.value, 10)*2; // Use the body width slider for line thickness
+
+            // Create a horizontal gradient that fades to white on either side of the black line
+            const gradient = transparentCtx.createLinearGradient(centerX - lineWidth, 0, centerX + lineWidth, 0);
+            gradient.addColorStop(0, 'white'); // Left side fades to white
+            gradient.addColorStop(0.5, 'black'); // Center is black
+            gradient.addColorStop(1, 'white'); // Right side fades to white
+
+            // Draw the body line with the gradient
+            transparentCtx.beginPath();
+            transparentCtx.moveTo(centerX, 0); // Start at the top of the canvas
+            transparentCtx.lineTo(centerX, transparentCanvas.height); // End at the bottom of the canvas
+            transparentCtx.strokeStyle = gradient; // Use the gradient as the stroke style
+            transparentCtx.lineWidth = lineWidth; // Set the line width
+            transparentCtx.stroke(); // Draw the line
+        }
+    });
+
+    // Draw the transparent canvas onto the original canvas
+    ctx.drawImage(transparentCanvas, 0, 0);
+    drawAndCopyToWhiteCanvas(poses, transparentCtx, canvasId);
+}

@@ -4,6 +4,7 @@
   "mirror0": true,
   "mirror1": true,
   "poseCheckbox": true,
+  "domesticCheckbox": false,
   "radialAnimCheckbox": false,
   "videoCheckbox": false,
   "videoCheckbox0": true,
@@ -27,5 +28,9 @@
   "offsetYSlider": "0",
   "pixelSlider": ".9",
   "minZSlider": "0",
-  "maxZSlider": "6"
+  "maxZSlider": "6",
+  "rightEdgeCutoffSlider": "0",
+  "leftEdgeCutoffSlider": "0",
+  "topEdgeCutoffSlider": "0",
+  "bottomEdgeCutoffSlider": "0"
 }
