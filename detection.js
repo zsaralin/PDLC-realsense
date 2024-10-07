@@ -40,7 +40,12 @@ function initializeCanvasAndSliders(canvasId) {
 // Load the MoveNet body tracking model
 async function loadModel() {
     const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, {
-        modelType: poseDetection.movenet.modelType.MULTIPOSE_LIGHTNING
+        modelType: poseDetection.movenet.modelType.MULTIPOSE_LIGHTNING,
+        maxPoses: 6 , // Set the number of poses to the maximum MoveNet can handle (up to 6),
+        enableSmoothing: true, // Set to true to reduce jitter in keypoints
+        inputResolution: { width: 640, height: 480 } // Set the resolution of the input images
+
+
     });
     return detector;
 }

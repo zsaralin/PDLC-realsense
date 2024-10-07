@@ -168,6 +168,18 @@ export function drawStickFigure(poses, ctx, canvasId) {
             }
         }
 
+        function drawBodyLine(p1, p2, color = "black") {
+            const thickness = parseInt(bodyWidthSlider.value, 10);
+            if (p1.score > 0.2 && p2.score > 0.2) {
+                transparentCtx.beginPath();
+                transparentCtx.moveTo(p1.x, p1.y);
+                transparentCtx.lineTo(p2.x, p2.y);
+                transparentCtx.strokeStyle = color;
+                transparentCtx.lineWidth = thickness * 2;
+                transparentCtx.stroke();
+            }
+        }
+
         if (drawHead) {
             const headRadiusX = parseInt(headSlider.value, 10) / 2;
             const headRadiusY = headRadiusX * 2;
@@ -186,11 +198,11 @@ export function drawStickFigure(poses, ctx, canvasId) {
             const hipCenterY = (leftHip.y + rightHip.y) / 2;
             torsoStart = { x: nose.x, y: nose.y, score: nose.score };
             torsoEnd = { x: hipCenterX, y: drawLegs ? hipCenterY : hipCenterY * 2, score: Math.min(leftHip.score, rightHip.score) };
-            drawLine(torsoStart, torsoEnd);
+            drawBodyLine(torsoStart, torsoEnd);
         } else {
             torsoStart = { x: nose.x, y: nose.y, score: nose.score };
             torsoEnd = { x: nose.x, y: transparentCanvas.height, score: nose.score };
-            drawLine(torsoStart, torsoEnd);
+            drawBodyLine(torsoStart, torsoEnd);
         }
 
         const shoulderRatio = 0.2;
@@ -205,32 +217,41 @@ export function drawStickFigure(poses, ctx, canvasId) {
             score: leftShoulder.score
         };
 
-        if (drawArms) {
-            const leftElbowExtended = {
-                x: leftShoulder.x + armLengthSlider.value * (leftElbow.x - leftShoulder.x),
-                y: leftShoulder.y + armLengthSlider.value * (leftElbow.y - leftShoulder.y),
+        if (leftShoulder && leftElbow && leftWrist) {
+            // Calculate the direction vector from shoulder to wrist
+            const shoulderToWrist = {
+                x: leftWrist.x - leftShoulder.x,
+                y: leftWrist.y - leftShoulder.y
+            };
+            
+            // Straighten the elbow by placing it along the line between the shoulder and wrist
+            const leftElbowStraightened = {
+                x: leftShoulder.x + 0.5 * shoulderToWrist.x, // Midpoint between shoulder and wrist
+                y: leftShoulder.y + 0.5 * shoulderToWrist.y,
                 score: leftElbow.score
             };
-            const leftWristExtended = {
-                x: leftElbowExtended.x + armLengthSlider.value * (leftWrist.x - leftElbow.x),
-                y: leftElbowExtended.y + armLengthSlider.value * (leftWrist.y - leftElbow.y),
-                score: leftWrist.score
+            
+            drawLine(leftShoulder, leftElbowStraightened);
+            drawLine(leftElbowStraightened, leftWrist);
+        }
+        
+        // Check and draw the right arm if defined
+        if (rightShoulder && rightElbow && rightWrist) {
+            // Calculate the direction vector from shoulder to wrist
+            const shoulderToWrist = {
+                x: rightWrist.x - rightShoulder.x,
+                y: rightWrist.y - rightShoulder.y
             };
-            drawLine(leftShoulder, leftElbowExtended);
-            drawLine(leftElbowExtended, leftWristExtended);
-
-            const rightElbowExtended = {
-                x: rightShoulder.x + armLengthSlider.value * (rightElbow.x - rightShoulder.x),
-                y: rightShoulder.y + armLengthSlider.value * (rightElbow.y - rightShoulder.y),
+            
+            // Straighten the elbow by placing it along the line between the shoulder and wrist
+            const rightElbowStraightened = {
+                x: rightShoulder.x + 0.5 * shoulderToWrist.x, // Midpoint between shoulder and wrist
+                y: rightShoulder.y + 0.5 * shoulderToWrist.y,
                 score: rightElbow.score
             };
-            const rightWristExtended = {
-                x: rightElbowExtended.x + armLengthSlider.value * (rightWrist.x - rightElbow.x),
-                y: rightElbowExtended.y + armLengthSlider.value * (rightWrist.y - rightElbow.y),
-                score: rightWrist.score
-            };
-            drawLine(rightShoulder, rightElbowExtended);
-            drawLine(rightElbowExtended, rightWristExtended);
+            
+            drawLine(rightShoulder, rightElbowStraightened);
+            drawLine(rightElbowStraightened, rightWrist);
         }
 
         if (drawLegs) {
@@ -253,7 +274,7 @@ export function drawStickFigure(poses, ctx, canvasId) {
     });
 
     ctx.drawImage(transparentCanvas, 0, 0);
-    drawAndCopyToWhiteCanvas(poses, transparentCtx, canvasId);
+    drawAndCopyToWhiteCanvas(poses, transparentCtx, canvasId, true);
 }
 
 
@@ -283,13 +304,29 @@ export function drawBodyLine(poses, ctx, canvasId) {
         // If both hips are detected, draw the body line with the gradient
         if (leftHip && rightHip) {
             const centerX = (leftHip.x + rightHip.x) / 2; // Calculate the center x-position of the body
-            const lineWidth = parseInt(bodyWidthSlider.value, 10)*2; // Use the body width slider for line thickness
+            let lineWidth = parseInt(bodyWidthSlider.value, 10)*4; // Use the body width slider for line thickness
+            // Create a horizontal gradient that fades to white on either side of the black line
+            const gradient0 = transparentCtx.createLinearGradient(centerX - lineWidth, 0, centerX + lineWidth, 0);
+            gradient0.addColorStop(0, 'white'); // Left side fades to white
+            gradient0.addColorStop(0.5, 'rgb(80,80,80)'); // Center is black
+            gradient0.addColorStop(1, 'white'); // Right side fades to white
+
+            // Draw the body line with the gradient
+            transparentCtx.beginPath();
+            transparentCtx.moveTo(centerX, 0); // Start at the top of the canvas
+            transparentCtx.lineTo(centerX, transparentCanvas.height); // End at the bottom of the canvas
+            transparentCtx.strokeStyle = gradient0; // Use the gradient as the stroke style
+            transparentCtx.lineWidth = lineWidth; // Set the line width
+            transparentCtx.stroke(); // Draw the line
+
+            lineWidth = parseInt(bodyWidthSlider.value, 10); // Use the body width slider for line thickness
+
 
             // Create a horizontal gradient that fades to white on either side of the black line
             const gradient = transparentCtx.createLinearGradient(centerX - lineWidth, 0, centerX + lineWidth, 0);
-            gradient.addColorStop(0, 'white'); // Left side fades to white
+            gradient.addColorStop(0, 'rgb(0,0,0)'); // Left side fades to white
             gradient.addColorStop(0.5, 'black'); // Center is black
-            gradient.addColorStop(1, 'white'); // Right side fades to white
+            gradient.addColorStop(1, 'rgb(0,0,0)'); // Right side fades to white
 
             // Draw the body line with the gradient
             transparentCtx.beginPath();
@@ -298,6 +335,8 @@ export function drawBodyLine(poses, ctx, canvasId) {
             transparentCtx.strokeStyle = gradient; // Use the gradient as the stroke style
             transparentCtx.lineWidth = lineWidth; // Set the line width
             transparentCtx.stroke(); // Draw the line
+
+
         }
     });
 

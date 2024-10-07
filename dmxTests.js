@@ -17,7 +17,7 @@ export function handleFadeAnimation(canvas, ctx) {
                 alpha -= 0.01;
                 if (alpha <= 0) fadeIn = true;
             }
-        drawToPixelatedCanvas()
+            drawToPixelatedCanvas()
 
         }, 30);
     }
@@ -113,18 +113,18 @@ export function handleRadialGradientAnimation(canvas, ctx) {
     let gradient = null;
     let gradientInterval;
 
-    function startRadialGradient(minSpeed = 2, maxSpeed = 6) {
+    function startRadialGradient(minSpeed = 1, maxSpeed = 5) {
         // Initialize the gradient object
         gradient = {
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
             radius: 0, // Start from radius 0
-            maxRadius: Math.random() * (canvas.width)+ 300, // Random max radius
+            maxRadius: Math.floor(Math.random() * (500 - 200 + 1)) + 200,
             speed: minSpeed + Math.random() * (maxSpeed - minSpeed),
             expanding: true,
         };
 
-        gradientInterval = setInterval(function() {
+        gradientInterval = setInterval(function () {
             // Clear the canvas and fill it with black
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -144,7 +144,7 @@ export function handleRadialGradientAnimation(canvas, ctx) {
                     // Optionally reset position, maxRadius, and speed
                     gradient.x = Math.random() * canvas.width;
                     gradient.y = Math.random() * canvas.height;
-                    gradient.maxRadius = Math.random() * (canvas.width / 2) + 50;
+                    gradient.maxRadius = Math.floor(Math.random() * (500 - 200 + 1)) + 200;
                     gradient.speed = minSpeed + Math.random() * (maxSpeed - minSpeed);
                 }
             }
@@ -164,9 +164,10 @@ export function handleRadialGradientAnimation(canvas, ctx) {
                 ctx.arc(gradient.x, gradient.y, gradient.radius, 0, Math.PI * 2);
                 ctx.fill();
             }
-            drawToPixelatedCanvas()
 
-        }, 30); // Adjust the interval as needed
+            drawToPixelatedCanvas();
+
+        }, 30); // Adjust the interval as needed (currently set to 30ms)
     }
 
     function stopRadialGradient() {
@@ -182,30 +183,30 @@ export function handleRadialGradientAnimation(canvas, ctx) {
     };
 }
 
-export function handleRadialFadeAnimation (canvas, ctx) {
+export function handleRadialFadeAnimation(canvas, ctx) {
     let gradient = null;
-    let animationFrameId;
+    let intervalId;
     let phase = 'expanding'; // Possible phases: 'expanding', 'contracting', 'fadeToWhite', 'fadeToBlack'
     let backgroundColor = { r: 0, g: 0, b: 0 }; // Starts with black background
     let backgroundTargetColor = { r: 255, g: 255, b: 255 }; // White color
     let backgroundFadeStep = 0;
     let isWhiteBackground = false; // Tracks the current background color state
 
-    function startRadialFade(minSpeed = 2, maxSpeed = 6, fadeDuration = 2000) {
+    function startRadialFade(minSpeed = 1, maxSpeed = 5, fadeDuration = 2000) {
         // Initialize the gradient object
         gradient = {
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
             radius: 0, // Start from radius 0
-            maxRadius: Math.random() * (canvas.width) + 300, // Random max radius
+            maxRadius: Math.floor(Math.random() * (500 - 200 + 1)) + 200, // Random max radius
             speed: minSpeed + Math.random() * (maxSpeed - minSpeed),
             expanding: true,
         };
 
-        backgroundFadeStep = 1 / (fadeDuration / 16.67); // Approximate fade steps based on 60 FPS
+        backgroundFadeStep = 1 / (fadeDuration / 30); // Approximate fade steps based on 60 FPS
 
         function animate() {
-                        drawToPixelatedCanvas()
+            drawToPixelatedCanvas();
 
             // Clear the canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -300,31 +301,28 @@ export function handleRadialFadeAnimation (canvas, ctx) {
                         x: Math.random() * canvas.width,
                         y: Math.random() * canvas.height,
                         radius: 0,
-                        maxRadius: Math.random() * (canvas.width / 2) + 50,
+                        maxRadius: Math.floor(Math.random() * (500 - 200 + 1)) + 200,
                         speed: minSpeed + Math.random() * (maxSpeed - minSpeed),
                         expanding: true,
                     };
                     phase = 'expanding';
                 }
             }
-
-            // Request the next frame
-            animationFrameId = requestAnimationFrame(animate);
         }
 
-        // Start the animation loop
-        animate();
+        // Start the animation loop, running every 30ms
+        intervalId = setInterval(animate, 30);
     }
 
     function stopRadialFade() {
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
+        if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
         }
     }
 
     return {
-        startRadialFade ,
+        startRadialFade,
         stopRadialFade,
     };
 }
