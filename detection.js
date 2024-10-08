@@ -114,14 +114,13 @@ async function trackPoses(detector, imgId, canvasId) {
                 }
 
                 // Draw the stick figure only if there are valid poses
-                if (poses.length > 0) {
                     if(poseCheckbox.checked){
                     drawStickFigure(poses, ctx, canvasId);
                     }
                     else if(domesticCheckbox.checked){
                         drawBodyLine(poses, ctx, canvasId)
                     }
-                }
+                
 
                 ctx.restore();
             }

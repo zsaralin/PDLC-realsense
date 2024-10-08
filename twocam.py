@@ -14,7 +14,7 @@ pipeline1 = None
 try:
     pipeline0 = rs.pipeline()
     config0 = rs.config()
-    config0.enable_device('213622252175')#('207322250086')#('213622253034')  # Camera 0 serial number
+    config0.enable_device('207322250086')#('207322250086')#('213622253034')  # Camera 0 serial number
     config0.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
     config0.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)  # Enable depth stream
     pipeline_profile0 = pipeline0.start(config0)
@@ -32,7 +32,7 @@ except Exception as e:
 try:
     pipeline1 = rs.pipeline()
     config1 = rs.config()
-    config1.enable_device('213622252175')  # Camera 1 serial number
+    config1.enable_device('213622253034')  # Camera 1 serial number
     config1.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
     config1.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)  # Enable depth stream
     pipeline_profile1 = pipeline1.start(config1)

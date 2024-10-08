@@ -34,13 +34,15 @@ export function handleFadeAnimation(canvas, ctx) {
         stopFade
     };
 }
+
 export function handleGradientAnimation(canvas, ctx) {
     const canvasHeight = canvas.height;
     const visibleCanvasWidth = canvas.width;
     const extendedCanvasWidth = visibleCanvasWidth * 3;  // 3x the width of the visible canvas
 
     let gradientPosition = 0;
-    let gradientInterval;
+    let gradientDirection = 1; // 1 for moving right, -1 for moving left
+    let animationFrameId;
 
     // Create an offscreen canvas to hold the 3x wide gradient
     const offscreenCanvas = document.createElement('canvas');
@@ -50,11 +52,11 @@ export function handleGradientAnimation(canvas, ctx) {
 
     // Function to draw the gradient on the offscreen canvas
     function drawGradient() {
-        // Left third: fully black
+        // Left third: fully white
         offscreenCtx.fillStyle = 'white';
         offscreenCtx.fillRect(0, 0, visibleCanvasWidth, canvasHeight);
 
-        // Middle third: smooth gradient from black to white
+        // Middle third: smooth gradient from white to black
         const gradient = offscreenCtx.createLinearGradient(visibleCanvasWidth, 0, visibleCanvasWidth * 2, 0);
         gradient.addColorStop(0, 'white');
         gradient.addColorStop(0.5, 'gray'); // Add gray in the middle for smooth transition
@@ -62,44 +64,50 @@ export function handleGradientAnimation(canvas, ctx) {
         offscreenCtx.fillStyle = gradient;
         offscreenCtx.fillRect(visibleCanvasWidth, 0, visibleCanvasWidth, canvasHeight);
 
-        // Right third: fully white
+        // Right third: fully black
         offscreenCtx.fillStyle = 'black';
         offscreenCtx.fillRect(visibleCanvasWidth * 2, 0, visibleCanvasWidth, canvasHeight);
     }
+
+    function animateGradient() {
+        // Clear the visible canvas
+        ctx.clearRect(0, 0, visibleCanvasWidth, canvasHeight);
+
+        // Draw the portion of the offscreen canvas onto the visible canvas
+        ctx.drawImage(
+            offscreenCanvas,
+            gradientPosition, 0, visibleCanvasWidth, canvasHeight,
+            0, 0, visibleCanvasWidth, canvasHeight
+        );
+
+        // Move the gradient position based on the direction
+        gradientPosition += gradientDirection * 5; // Adjust this value to control speed
+
+        // Reverse direction if the gradient reaches either end
+        if (gradientPosition >= visibleCanvasWidth * 2) {
+            gradientDirection = -1;  // Change direction to left
+        } else if (gradientPosition <= 0) {
+            gradientDirection = 1;   // Change direction to right
+        }
+
+        // Redraw the pixelated canvas (if necessary)
+        drawToPixelatedCanvas();
+
+        // Request the next frame
+        animationFrameId = requestAnimationFrame(animateGradient);
+    }
+
     function startGradient() {
         drawGradient();  // Draw the gradient onto the offscreen canvas
-    
-        let gradientDirection = 1; // 1 for moving right, -1 for moving left
-    
-        gradientInterval = setInterval(function() {
-            // Clear the visible canvas
-            ctx.clearRect(0, 0, visibleCanvasWidth, canvasHeight);
-    
-            // Draw the portion of the offscreen canvas onto the visible canvas
-            ctx.drawImage(
-                offscreenCanvas,
-                gradientPosition, 0, visibleCanvasWidth, canvasHeight,
-                0, 0, visibleCanvasWidth, canvasHeight
-            );
-    
-            // Move the gradient position based on the direction
-            gradientPosition += gradientDirection * 5; // Adjust this value to control speed
-    
-            // Reverse direction if the gradient reaches either end
-            if (gradientPosition >= visibleCanvasWidth * 2) {
-                gradientDirection = -1;  // Change direction to left
-            } else if (gradientPosition <= 0) {
-                gradientDirection = 1;   // Change direction to right
-            }
-            drawToPixelatedCanvas()
-
-        }, 30);  // Adjust the speed of the animation
+        if (!animationFrameId) {
+            animateGradient(); // Start the animation loop
+        }
     }
-    
+
     function stopGradient() {
-        if (gradientInterval) {
-            clearInterval(gradientInterval);
-            gradientInterval = null;
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId); // Stop the animation loop
+            animationFrameId = null;
         }
     }
 
@@ -324,5 +332,115 @@ export function handleRadialFadeAnimation(canvas, ctx) {
     return {
         startRadialFade,
         stopRadialFade,
+    };
+}
+export function handleBarMovement(canvas, ctx) {
+    let barX = 0; // Start the bar on the leftmost side
+    const barWidth = 10; // Width of the vertical bar
+    const barHeight = canvas.height; // Height of the vertical bar
+    const barInfo = document.getElementById('pixelInfo'); // Grab the barInfo div
+
+    // Draw the bar at its current position
+    function drawBar() {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+        ctx.fillStyle = 'black'; // Set the color of the bar
+        ctx.fillRect(barX, 0, barWidth, barHeight); // Draw the bar
+
+        // Calculate the current column based on barX
+        const currentCol = Math.floor(barX / barWidth);
+
+        // Update the barInfo div with the current column
+        barInfo.innerHTML = `Col: ${currentCol}`;
+
+        drawToPixelatedCanvas();
+    }
+
+    // Handle key presses to move the bar
+    function handleKeyPress(event) {
+        if (event.key === 'ArrowLeft') {
+            barX -= 10; // Move the bar to the left
+            if (barX < 0) barX = 0; // Prevent it from going off the left side
+        } else if (event.key === 'ArrowRight') {
+            barX += 10; // Move the bar to the right
+            if (barX + barWidth > canvas.width) barX = canvas.width - barWidth; // Prevent it from going off the right side
+        }
+        drawBar(); // Redraw the bar in the new position
+    }
+
+    // Attach the keydown event listener
+    window.addEventListener('keydown', handleKeyPress);
+
+    // Initial draw of the bar
+    drawBar();
+
+    // Return a function to stop bar movement and remove event listeners
+    return function stopBarMovement() {
+        window.removeEventListener('keydown', handleKeyPress); // Remove the event listener
+    };
+}
+
+export function handlePixelMovement(canvas, ctx) {
+    let pixelX = 0; // Start at the leftmost side
+    let pixelY = 0; // Start at the topmost side
+    const pixelSize = 10; // Width and height of the pixel (10x10)
+    const pixelInfo = document.getElementById('pixelInfo'); // Grab the pixelInfo div
+
+    // Draw the pixel at its current position
+    function drawPixel() {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+        ctx.fillStyle = 'black'; // Set the color of the pixel
+        ctx.fillRect(pixelX, pixelY, pixelSize, pixelSize); // Draw the pixel
+
+        // Calculate the current column and row based on pixelX and pixelY
+        const currentCol = Math.floor(pixelX / pixelSize);
+        const currentRow = Math.floor(pixelY / pixelSize);
+
+        // Update the pixelInfo div with the current column and row
+        pixelInfo.innerHTML = `Col: ${currentCol}, Row: ${currentRow}`;
+
+        drawToPixelatedCanvas();
+    }
+
+    // Handle key presses to move the pixel
+    function handleKeyPress(event) {
+        if (event.key === 'ArrowLeft') {
+            pixelX -= pixelSize; // Move the pixel to the left
+            if (pixelX < 0) {
+                pixelX = canvas.width - pixelSize; // Wrap to the last column of the previous row
+                pixelY -= pixelSize;
+                if (pixelY < 0) pixelY = 0; // Prevent going above the top row
+            }
+        } else if (event.key === 'ArrowRight') {
+            pixelX += pixelSize; // Move the pixel to the right
+            if (pixelX >= canvas.width) {
+                pixelX = 0; // Wrap to the first column of the next row
+                pixelY += pixelSize;
+                if (pixelY >= canvas.height) pixelY = canvas.height - pixelSize; // Prevent going beyond the bottom row
+            }
+        } else if (event.key === 'ArrowUp') {
+            pixelY -= pixelSize; // Move the pixel up
+            if (pixelY < 0) {
+                pixelY = 0; // Prevent going off the top
+            }
+        } else if (event.key === 'ArrowDown') {
+            pixelY += pixelSize; // Move the pixel down
+            if (pixelY >= canvas.height) {
+                pixelY = canvas.height - pixelSize; // Prevent going off the bottom
+            }
+        }
+        drawPixel(); // Redraw the pixel in the new position
+    }
+
+    // Attach the keydown event listener
+    window.addEventListener('keydown', handleKeyPress);
+
+    // Initial draw of the pixel
+    drawPixel();
+
+    // Return a function to stop pixel movement and remove event listeners
+    return function stopPixelMovement() {
+        window.removeEventListener('keydown', handleKeyPress); // Remove the event listener
     };
 }

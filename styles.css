@@ -93,7 +93,6 @@ canvas {
     width: 280px;
     height: 100px;
     background-color: white; /* Make the canvas background white */
-    border: 1px solid black; /* Optional: Add a border to the canvas */
     z-index: 1000; /* Ensure it's on top of other elements */
 }
 
@@ -107,7 +106,6 @@ canvas {
     width: 280px;
     height: 100px;
     background-color: white; /* Make the canvas background white */
-    border: 1px solid black; /* Optional: Add a border to the canvas */
     z-index: 1000; /* Ensure it's on top of other elements */
 }
 

@@ -31,7 +31,7 @@
                 <input type="checkbox" id="poseCheckbox"> Pose Tracking (1)
             </label>
             <label>
-                <input type="checkbox" id="radialAnimCheckbox"> Screen Saver (2)
+                <input type="checkbox" id="radialFadeAnimCheckbox"> Screen Saver (2)
             </label>
             <label>
                 <input type="checkbox" id="videoCheckbox"> Videos (3)
@@ -68,7 +68,7 @@
                 <input type="checkbox" id="gradientAnimCheckbox"> Linear Gradient
             </label>
             <label>
-                <input type="checkbox" id="radialFadeAnimCheckbox"> Radial Fade
+                <input type="checkbox" id="radialAnimCheckbox"> Radial No Fade
             </label>
         </div>
     
@@ -78,6 +78,12 @@
                 <input type="range" id="bodySlider" min="2" max="50">
                 <button class="increase-btn">+</button>
                 <label for="bodySlider">Body Line Width: <span id="bodySliderValue">10</span></label>
+            </div>
+            <div class="slider-container">   
+                <button class="decrease-btn">-</button>
+                <input type="range" id="armWidthSlider" min="2" max="50">
+                <button class="increase-btn">+</button>
+                <label for="armSlider">Arm Line Width: <span id="armWidthSliderValue">10</span></label>
             </div>
             
             <div class="slider-container">   
@@ -110,11 +116,16 @@
 
             <div class="slider-container">   
                 <button class="decrease-btn">-</button>
-                <input type="range" id="offsetXSlider" min="-100" max="100">
+                <input type="range" id="offsetX0Slider" min="-100" max="100">
                 <button class="increase-btn">+</button>
-                <label for="offsetXSlider">Offset X: <span id="offsetXSliderValue">0</span></label>
+                <label for="offsetX0Slider">Offset X (cam0): <span id="offsetX0SliderValue">0</span></label>
             </div>
-        
+            <div class="slider-container">   
+                <button class="decrease-btn">-</button>
+                <input type="range" id="offsetX1Slider" min="-100" max="100">
+                <button class="increase-btn">+</button>
+                <label for="offsetX1Slider">Offset X (cam1): <span id="offsetX1SliderValue">0</span></label>
+            </div>
             <div class="slider-container">   
                 <button class="decrease-btn">-</button>
                 <input type="range" id="offsetYSlider" min="-100" max="100">
@@ -126,9 +137,15 @@
   
         <div class="slider-container">   
             <button class="decrease-btn">-</button>
-            <input type="range" id="pixelSlider" min=".1" max=".9" step = ".1">
+            <input type="range" id="pixelSlider" min=".01" max="1" step = ".01">
             <button class="increase-btn">+</button>
             <label for="pixelSlider">Pixel Smooth: <span id="pixelSliderValue">.9</span></label>
+        </div>
+        <div class="slider-container">   
+            <button class="decrease-btn">-</button>
+            <input type="range" id="blurSlider" min="1" max="30" step = "1">
+            <button class="increase-btn">+</button>
+            <label for="blurSlider">Blur Slider: <span id="blurSliderValue">9</span></label>
         </div>
     </div>
 
@@ -178,7 +195,22 @@
             <label for="bottomEdgeCutoffSlider">Bottom Edge Cutoff: <span id="bottomEdgeCutoffSliderValue">0</span></label>
         </div>
         </div>
-        
+        <label>Arrow Bars (with CSV mapping)</label>
+        <div class="checkbox-row">
+        <label>
+            <input type="checkbox" id="verticalBarCheckbox"> Vertical Bar 
+        </label>
+        <label>
+            <input type="checkbox" id="pixelMoverCheckbox"> Single Pixel
+        </label>
+    </div>
+
+        <label>Channel Chase (no CSV mapping)</label>
+        <div class="checkbox-row">
+        <label>
+            <input type="checkbox" id="startChase"> Start Chase
+        </label>
+        </div>
         <button id="saveButton">Save</button>
 
     </div>
@@ -194,6 +226,8 @@
 <div id="pixelatedCanvasContainer">
     <canvas id="pixelatedCanvas"></canvas>
 </div>
+<div id = "pixelInfo"></div>
+
 <script type="module" src="setupSidepanel.js"></script>
 <script type="module" src="cameraSetup.js"></script>
 <script type="module" src="fill.js"></script>

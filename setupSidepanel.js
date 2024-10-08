@@ -178,7 +178,7 @@ function handleKeyPress(event) {
             poseCheckbox.dispatchEvent(new Event('change')); // Trigger 'change' event
             break;
         case '2':
-            const radialAnimCheckbox = document.getElementById('radialAnimCheckbox');
+            const radialAnimCheckbox = document.getElementById('radialFadeAnimCheckbox');
             radialAnimCheckbox.checked = true;
             radialAnimCheckbox.dispatchEvent(new Event('change')); // Trigger 'change' event
             break;

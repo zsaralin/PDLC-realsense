@@ -1,14 +1,18 @@
+import { avgCtx } from './pixelatedCanvas.js';
+
 // Initialize an array to store the previous brightness values for smoothing
 let prevBrightnessValues = Array(10).fill().map(() => Array(28).fill(0)); // 28 columns and 10 rows
 
-
-export function setDMXFromPixelCanvas(imageData, pixelSmoothing) {
-    if(!pixelSmoothing){
-        pixelSmoothing = document.getElementById('pixelSlider').value/10
+// Function to set DMX from pixel canvas and run continuously in a loop
+export function setDMXFromPixelCanvas(pixelSmoothing) {
+    if (!pixelSmoothing) {
+        pixelSmoothing = document.getElementById('pixelSlider').value /2;
     }
-    console.log(pixelSmoothing)
-    let brightnessValues = [];
+
+    // Grab the ImageData directly from the avgCtx
+    const imageData = avgCtx.getImageData(0, 0, 28, 10); // Assuming avgCtx is 28x10
     const data = imageData.data;
+    let brightnessValues = [];
     const cols = 28; // 28 columns (from the 28x10 canvas)
     const rows = 10; // 10 rows (from the 28x10 canvas)
 
@@ -46,4 +50,22 @@ export function setDMXFromPixelCanvas(imageData, pixelSmoothing) {
     })
         .then(response => response.json())
         .catch(error => console.error('Error:', error));
+}
+let backendInterval;
+
+export function startDMXAnimationLoop() {
+    // Variable to hold the interval ID
+
+    // Start calling setDMXFromPixelCanvas every 60 milliseconds (roughly 16-17 times per second)
+    backendInterval = setInterval(() => {
+        setDMXFromPixelCanvas();  // Call the function to send DMX data
+    }, 16.67); //60 fps
+
+}
+
+export function stopDMXAnimationLoop() {
+    if (backendInterval) {
+        clearInterval(backendInterval);  // Stop the interval
+        backendInterval = null;  // Reset the interval variable
+    }
 }

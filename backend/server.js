@@ -15,59 +15,6 @@ const options = {
 };
 const artnet = require('artnet')(options);
 
-const numberOfChannels = 512; // Adjust to the number of channels you have
-let currentChannel = 180;
-let count = 0 ; 
-async function fadeColumn18() {
-    try {
-        // Wait for CSV mapping to be created
-        const csvMapping = await createCsvMapping();
-        csvMapping0 = csvMapping[0]; // Assuming we are working with the first mapping
-
-        const universeData = new Array(512).fill(255); // Initialize all channels with 255 (white)
-        let fadeDirection = -1; // Fade direction: -1 for fading to 0, 1 for fading to 255
-        let brightness = 255;   // Start at full brightness
-
-        // Create an interval to fade column 18 between 0 and 255
-        const intervalId = setInterval(async () => {
-            try {
-                // Adjust the brightness
-                brightness += fadeDirection * 10; // Adjust the fade speed with increments
-                if (brightness <= 0) {
-                    brightness = 0;
-                    fadeDirection = 1; // Start fading up
-                } else if (brightness >= 255) {
-                    brightness = 255;
-                    fadeDirection = -1; // Start fading down
-                }
-
-                // Only apply the brightness to column 18 across all rows
-                for (let row = 0; row < 10; row++) {
-                    const mapping = csvMapping0[`${row}-18`]; // Column 18
-                    if (mapping) {
-                        const { dmxChannel } = mapping;
-                        universeData[dmxChannel - 1] = brightness; // Set the column's channel to the current brightness
-                    }
-                }
-
-                // Send the DMX data for all channels over Art-Net
-                await artnet.set(0, 1, universeData);
-                console.log(`Fading column 18 to brightness ${brightness}`);
-
-            } catch (error) {
-                console.error('Error sending DMX values over Art-Net:', error);
-                clearInterval(intervalId); // Stop the interval if there's an error
-            }
-        }, 100); // Adjust interval time for smoother fading (100 ms = 10 steps per second)
-
-    } catch (error) {
-        console.error('Error in fadeColumn18:', error);
-    }
-}
-
-
-// fadeColumn18()
-
 let csvMapping0;
 
 createCsvMapping()
@@ -81,15 +28,18 @@ createCsvMapping()
     let previousValues = {}; // Store previous DMX values for each channel
 
     // Smooth transition function using a factor for gradual change
-    function smoothTransition(prevValue, newValue, factor = .01) {
+    function smoothTransition(prevValue, newValue, factor = 1) {
         return prevValue + (newValue - prevValue) * factor;
     }
     app.post('/set-dmx', async (req, res) => {
+        
+        if(!animationInterval){
         try {
             let { dmxValues } = req.body; // Received all 30 columns brightness values
             dmxValues = dmxValues.map(row => row.map(value => 255 - value)); // Inverting brightness values for DMX
             let universeData = new Array(512).fill(0); // Initialize all channels with 0 (black)
-    
+            universeData[universeData.length - 1] = Math.floor(Math.random() * 256);
+
             function clampValue(value) {
                 return Math.max(Math.min(value, 255), 0); // Ensure value is between 0 and 255
             }
@@ -98,7 +48,6 @@ createCsvMapping()
             for (let row = 0; row < 10; row++) {
                 const rowData = dmxValues[row];
                 for (let col = 0; col < 28; col++) {
-                    if(col === 18) console.log(rowData)
                     const brightness = clampValue(rowData[col]);
                     const mapping = csvMapping0[`${row}-${col}`];
                     if (mapping) {
@@ -108,7 +57,7 @@ createCsvMapping()
                         const previousValue = previousValues[dmxChannel] || brightness;
     
                         // Apply the smooth transition
-                        const smoothValue = smoothTransition(previousValue, brightness, 0.1);
+                        const smoothValue = brightness//smoothTransition(previousValue, brightness, 0.9);
     
                         // Store the smooth value directly in the universeData array at the correct DMX channel index
                         universeData[dmxChannel - 1] = smoothValue;
@@ -129,6 +78,7 @@ createCsvMapping()
                 res.status(500).json({ error: 'Error setting DMX' });
             }
         }
+    }
     });
     
     
@@ -152,4 +102,53 @@ app.post('/save-config', (req, res) => {
             res.json({ message: 'Config saved successfully' });
         }
     });
+});
+
+
+const totalChannels = 512; // Total DMX channels
+let universeData = new Array(totalChannels).fill(0); // Initialize all channels with 0 (black)
+let animationInterval = null; // To store the interval ID
+
+// Function to update the DMX for a specific channel
+function updateDMXWithChannel(channel) {
+    // Set all channels to 0 except the current one
+    universeData.fill(255);
+    universeData[universeData.length - 1] = Math.floor(Math.random() * 256);
+
+    universeData[channel] = 0; // Set the current channel to 255 (white)
+
+    // Send the updated DMX values over Art-Net
+    artnet.set(0, 1, universeData)
+}
+
+// Define a new endpoint to start the DMX animation loop
+app.post('/start-dmx-animation', (req, res) => {
+    let currentChannel = 0; // Start from the first channel
+
+    // Clear any existing interval if already running
+    if (animationInterval) {
+        clearInterval(animationInterval);
+    }
+
+    // Start the animation loop that changes the DMX channel every second
+    animationInterval = setInterval(() => {
+        updateDMXWithChannel(currentChannel);
+
+        // Move to the next channel, looping back to 0 when reaching the end
+        currentChannel = (currentChannel + 1) % totalChannels;
+    }, 500); // Change channel every 1 second
+
+    res.json({ message: 'DMX animation started' });
+});
+
+// Define a new endpoint to stop the DMX animation loop
+app.post('/stop-dmx-animation', (req, res) => {
+    console.log('STOP MEEEEE')
+    // Clear the interval to stop the DMX animation
+    if (animationInterval) {
+        clearInterval(animationInterval);
+        animationInterval = null;
+    }
+
+    res.json({ message: 'DMX animation stopped' });
 });

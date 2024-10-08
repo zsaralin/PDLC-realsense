@@ -24,8 +24,9 @@ export function drawAndCopyToWhiteCanvas(poses, transparentCtx, canvasId, poseVe
         whiteCtx.scale(-1, 1);  // Flip the canvas horizontally
     }
     if(poseVersion){
-    for(let i=0;i<3;i++){
-    whiteCtx.filter = `blur(${15}px)`;
+        const blurSliderValue = document.getElementById('blurSlider').value
+    for(let i=0;i<blurSliderValue;i++){
+        whiteCtx.filter = `blur(10px) brightness(500%) contrast(20%)`;  // Adjust brightness and contrast to soften black
 
     // Draw the transparent canvas onto the white canvas (stretched to 280x100)
     whiteCtx.drawImage(

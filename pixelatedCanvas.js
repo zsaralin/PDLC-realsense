@@ -1,26 +1,29 @@
+import { setDMXFromPixelCanvas, startDMXAnimationLoop } from "./sendDMX.js";
 
-import { setDMXFromPixelCanvas } from "./sendDMX.js";
 // Function to draw stick figure on the transparent canvas and copy to white canvas
 const whiteCanvas = document.getElementById("whiteCanvas");
 const whiteCtx = whiteCanvas.getContext('2d');
 const pixelatedCanvas = document.getElementById("pixelatedCanvas");
 const pixelatedCtx = pixelatedCanvas.getContext('2d');
-pixelatedCanvas.height = whiteCanvas. height = 100
-pixelatedCanvas.width = whiteCanvas.width = 280
-// Variables to store previous frame's pixel data
-let previousFrame = null;
+pixelatedCanvas.height = whiteCanvas.height = 100;
+pixelatedCanvas.width = whiteCanvas.width = 280;
+
+// Create a new off-screen canvas for 28x10 version
+const avgCanvas = document.createElement('canvas');
+avgCanvas.width = 28;
+avgCanvas.height = 10;
+export const avgCtx = avgCanvas.getContext('2d'); // Exported variable for access by other files
+
+startDMXAnimationLoop() 
+
 export function drawToPixelatedCanvas() {
+    // pixelatedCanvas.height = whiteCanvas.height = 100;
+    // pixelatedCanvas.width = whiteCanvas.width = 280;
     pixelatedCtx.clearRect(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
     const blockWidth = 10;
     const blockHeight = 10;
     const tempCanvasWidth = whiteCanvas.width;
     const tempCanvasHeight = whiteCanvas.height;
-
-    // Create a new off-screen canvas for 28x10 version
-    const avgCanvas = document.createElement('canvas');
-    avgCanvas.width = 28;
-    avgCanvas.height = 10;
-    const avgCtx = avgCanvas.getContext('2d');
 
     // Get the image data from the white canvas
     const imageData = whiteCtx.getImageData(0, 0, tempCanvasWidth, tempCanvasHeight);
@@ -71,6 +74,4 @@ export function drawToPixelatedCanvas() {
         }
     }
 
-    const pixelImageData = avgCtx.getImageData(0, 0, 28, 10);
-    setDMXFromPixelCanvas(pixelImageData);
 }

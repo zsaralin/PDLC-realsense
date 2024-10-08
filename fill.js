@@ -1,30 +1,75 @@
-import { handleFadeAnimation, handleGradientAnimation, handleRadialGradientAnimation, handleRadialFadeAnimation  } from './dmxTests.js'; // Import fade animation module
+import { handleFadeAnimation, handleGradientAnimation, handleRadialGradientAnimation, handleRadialFadeAnimation, handleBarMovement, handlePixelMovement  } from './dmxTests.js'; // Import fade animation module
 import { drawToPixelatedCanvas } from './pixelatedCanvas.js';
-
+import { startDMXAnimationLoop, stopDMXAnimationLoop } from './sendDMX.js';
 document.addEventListener('DOMContentLoaded', function() {
     const poseCheckbox = document.getElementById('poseCheckbox');
     const videoCheckbox = document.getElementById('videoCheckbox');
     const domesticCheckbox = document.getElementById('domesticCheckbox');
-
     const whiteCheckbox = document.getElementById('whiteCheckbox');
     const blackCheckbox = document.getElementById('blackCheckbox');
-    const canvas = document.getElementById('whiteCanvas');
-    const ctx = canvas.getContext('2d');
     const greyCheckbox = document.getElementById('greyCheckbox');
     const greySlider = document.getElementById('greySlider');
     const greyValueDisplay = document.getElementById('greySliderValue');
     const fadeAnimCheckbox = document.getElementById('fadeAnimCheckbox');
     const gradientAnimCheckbox = document.getElementById('gradientAnimCheckbox');
     const radialAnimCheckbox = document.getElementById('radialAnimCheckbox');
-    const radialGradientControl = handleRadialGradientAnimation(canvas, ctx);
     const radialFadeAnimCheckbox = document.getElementById('radialFadeAnimCheckbox');
-    const radialFadeControl = handleRadialFadeAnimation(canvas, ctx); // Assuming you have this function defined
+    const startChaseCheckbox = document.getElementById('startChase'); // Add your startChase checkbox
 
-    // Fade animation control
+    const canvas = document.getElementById('whiteCanvas')
+    const ctx = canvas.getContext('2d')
+    // Add your control functions
+    const radialGradientControl = handleRadialGradientAnimation(canvas, ctx);
+    const radialFadeControl = handleRadialFadeAnimation(canvas, ctx);
     const fadeControl = handleFadeAnimation(canvas, ctx);
     const gradientControl = handleGradientAnimation(canvas, ctx);
     let video;
-let videoInterval;
+    let stopBarMovement; 
+    let stopPixelMovement; 
+
+    let videoInterval;
+
+    // Function to make API requests to the server
+    async function callServer(endpoint) {
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            const data = await response.json();
+            console.log(`${endpoint} response:`, data);
+        } catch (error) {
+            console.error(`Error calling ${endpoint}:`, error);
+        }
+    }
+
+    // Listen to the 'startChase' checkbox changes
+    startChaseCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            domesticCheckbox.checked = false;
+            whiteCheckbox.checked = false; 
+            videoCheckbox.checked = false;
+            blackCheckbox.checked = false;
+            greyCheckbox.checked = false; // Uncheck grey checkbox
+            gradientAnimCheckbox.checked = false; // Uncheck gradient checkbox
+            radialAnimCheckbox.checked = false; // Uncheck radial checkbox
+            radialFadeAnimCheckbox.checked = false; // Uncheck radial fade checkbox
+            gradientControl.stopGradient(); // Stop gradient animation
+            radialGradientControl.stopRadialGradient(); // Stop radial animation
+            radialFadeControl.stopRadialFade(); // Stop radial fade animation
+            poseCheckbox.checked = false; 
+            stopDMXAnimationLoop()
+            // Call the start DMX animation endpoint when checked
+            callServer('http://localhost:3000/start-dmx-animation');
+        } else {
+            // Call the stop DMX animation endpoint when unchecked
+            callServer('http://localhost:3000/stop-dmx-animation');
+            startDMXAnimationLoop()
+        }
+    });
+
 
 // Function to play the video on the canvas
 function playVideoOnCanvas() {
@@ -140,19 +185,6 @@ addVideoGroupListeners()
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
-
-    function fillCheckerboard() {
-        const blockSize = 10; // Size of each checkerboard block (10x10)
-    
-        for (let row = 0; row < canvas.height; row += blockSize) {
-            for (let col = 0; col < canvas.width; col += blockSize) {
-                // Alternate between black and white
-                const isBlack = (Math.floor(row / blockSize) + Math.floor(col / blockSize)) % 2 === 0;
-                ctx.fillStyle = isBlack ? 'black' : 'white';
-                ctx.fillRect(col, row, blockSize, blockSize);
-            }
-        }
-    }
     
     poseCheckbox.addEventListener('change', function() {
         if (this.checked) {
@@ -167,6 +199,8 @@ addVideoGroupListeners()
             gradientControl.stopGradient(); // Stop gradient animation
             radialGradientControl.stopRadialGradient(); // Stop radial animation
             radialFadeControl.stopRadialFade(); // Stop radial fade animation
+            startChaseCheckbox.checked = false; 
+            
         } else if (!blackCheckbox.checked && !greyCheckbox.checked) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
@@ -386,6 +420,55 @@ addVideoGroupListeners()
             radialFadeControl.stopRadialFade(); // Stop the radial fade animation
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas when radial fade animation stops
         }
+    });
+    verticalBarCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            pixelMoverCheckbox.checked = false;
+            domesticCheckbox.checked = false;
+            videoCheckbox.checked = false; 
+            poseCheckbox.checked = false; 
+            whiteCheckbox.checked = false; 
+            blackCheckbox.checked = false;
+            greyCheckbox.checked = false; // Uncheck grey checkbox
+            gradientAnimCheckbox.checked = false; // Uncheck gradient checkbox
+            radialAnimCheckbox.checked = false; // Uncheck radial checkbox
+            radialFadeAnimCheckbox.checked = false; // Uncheck radial fade checkbox
+            gradientControl.stopGradient(); // Stop gradient animation
+            radialGradientControl.stopRadialGradient(); // Stop radial animation
+            radialFadeControl.stopRadialFade(); // Stop radial fade animation
+
+            stopBarMovement = handleBarMovement(canvas, ctx); // Start bar movement and store the stop function
+
+        } else{
+            if (stopBarMovement) stopBarMovement(); // Stop bar movement
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+
+        }
+    });
+
+        pixelMoverCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                verticalBarCheckbox.checked = false;
+                domesticCheckbox.checked = false;
+                videoCheckbox.checked = false; 
+                poseCheckbox.checked = false; 
+                whiteCheckbox.checked = false; 
+                blackCheckbox.checked = false;
+                greyCheckbox.checked = false; // Uncheck grey checkbox
+                gradientAnimCheckbox.checked = false; // Uncheck gradient checkbox
+                radialAnimCheckbox.checked = false; // Uncheck radial checkbox
+                radialFadeAnimCheckbox.checked = false; // Uncheck radial fade checkbox
+                gradientControl.stopGradient(); // Stop gradient animation
+                radialGradientControl.stopRadialGradient(); // Stop radial animation
+                radialFadeControl.stopRadialFade(); // Stop radial fade animation
+    
+                stopPixelMovement = handlePixelMovement(canvas, ctx); // Start bar movement and store the stop function
+    
+            } else{
+                if (stopPixelMovement) stopPixelMovement(); // Stop bar movement
+    
+            }
+            
     });
     // Initial fill (optional)
     fillCanvas('white');
