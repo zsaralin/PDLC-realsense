@@ -26,7 +26,7 @@ export function setDMXFromPixelCanvas(pixelSmoothing) {
             const prevBrightness = prevBrightnessValues[row][col];
 
             // Apply smoothing to calculate the smoothed brightness
-            const smoothedBrightness = Math.round(prevBrightness + pixelSmoothing * (currentBrightness - prevBrightness));
+            const smoothedBrightness = currentBrightness//Math.round(prevBrightness + pixelSmoothing * (currentBrightness - prevBrightness));
 
             // Update the previous brightness value for the next frame
             prevBrightnessValues[row][col] = smoothedBrightness;

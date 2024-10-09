@@ -1,4 +1,4 @@
-import { setDMXFromPixelCanvas, startDMXAnimationLoop } from "./sendDMX.js";
+import { setDMXFromPixelCanvas, startDMXAnimationLoop } from "./sendDMXOld.js";
 
 // Function to draw stick figure on the transparent canvas and copy to white canvas
 const whiteCanvas = document.getElementById("whiteCanvas");
@@ -19,7 +19,10 @@ let prevBrightnessValues = Array(10).fill().map(() => Array(28).fill(0)); // 28 
 
 startDMXAnimationLoop();
 
-export function drawToPixelatedCanvas(pixelSmoothing = 0.5) {
+export function drawToPixelatedCanvas(pixelSmoothing) {
+    if (!pixelSmoothing) {
+        pixelSmoothing = document.getElementById('pixelSlider').value /2;
+    }
     pixelatedCtx.clearRect(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
     const blockWidth = 10;
     const blockHeight = 10;

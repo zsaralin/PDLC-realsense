@@ -1,6 +1,7 @@
 import pyrealsense2 as rs
 import numpy as np
 import cv2
+import subprocess  # Import subprocess to launch the app
 from flask_cors import CORS
 from flask import request, jsonify, Flask, Response
 
@@ -14,7 +15,7 @@ pipeline1 = None
 try:
     pipeline0 = rs.pipeline()
     config0 = rs.config()
-    config0.enable_device('213622252175')#('207322250086')#('213622253034')  # Camera 0 serial number
+    config0.enable_device('207322250086')  # Camera 0 serial number
     config0.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
     config0.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)  # Enable depth stream
     pipeline_profile0 = pipeline0.start(config0)
@@ -45,6 +46,15 @@ try:
     print("Camera 1 started successfully.")
 except Exception as e:
     print("Camera 1 not available:", e)
+
+# Launch the external app right after attempting to start the cameras
+try:
+    subprocess.Popen(
+        r"C:\\Users\\antim\\OneDrive\\Desktop\\pdlc-realsense\\PDLC-realsense\\dist\win-unpacked\\pdlc.exe"
+    )
+    print("App launched successfully.")
+except Exception as e:
+    print("Failed to launch the app:", e)
 
 # Default min/max depth thresholds
 min_depth_threshold = 0  # Default minimum depth (meters)

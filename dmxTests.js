@@ -353,7 +353,7 @@ export function handleVerticalBarMovement(canvas, ctx) {
         // Update the barInfo div with the current column
         barInfo.innerHTML = `Col: ${currentCol}`;
 
-        drawToPixelatedCanvas();
+        drawToPixelatedCanvas(1);
     }
 
     // Handle key presses to move the bar
@@ -399,7 +399,7 @@ export function handleHorizontalBarMovement(canvas, ctx) {
         // Update the barInfo div with the current row
         barInfo.innerHTML = `Row: ${currentRow}`;
 
-        drawToPixelatedCanvas();
+        drawToPixelatedCanvas(1);
     }
 
     // Handle key presses to move the bar
@@ -452,7 +452,7 @@ export function handlePixelMovement(canvas, ctx) {
         // Update the pixelInfo div with the current column and row
         pixelInfo.innerHTML = `Col: ${currentCol}, Row: ${currentRow}`;
 
-        drawToPixelatedCanvas();
+        drawToPixelatedCanvas(1);
     }
 
     // Handle key presses to move the pixel

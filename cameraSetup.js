@@ -106,7 +106,7 @@ function updateNumCams() {
     }
 
     console.log(`Number of checked cameras: ${numCams}`);
-    createCameraElements(numCams); // Recreate camera elements based on the checkboxes
+    // createCameraElements(numCams); // Recreate camera elements based on the checkboxes
 }
 
 // Add event listeners to the checkboxes

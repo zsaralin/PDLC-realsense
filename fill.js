@@ -1,6 +1,6 @@
 import { handleFadeAnimation, handleGradientAnimation, handleRadialGradientAnimation, handleRadialFadeAnimation, handlePixelMovement , handleHorizontalBarMovement, handleVerticalBarMovement } from './dmxTests.js'; // Import fade animation module
 import { drawToPixelatedCanvas } from './pixelatedCanvas.js';
-import { startDMXAnimationLoop, stopDMXAnimationLoop } from './sendDMX.js';
+import { startDMXAnimationLoop, stopDMXAnimationLoop } from './sendDMXOld.js';
 document.addEventListener('DOMContentLoaded', function() {
     const poseCheckbox = document.getElementById('poseCheckbox');
     const videoCheckbox = document.getElementById('videoCheckbox');
@@ -242,7 +242,7 @@ addVideoGroupListeners()
     whiteCheckbox.addEventListener('change', function() {
         if (this.checked) {
             fillCanvas('white');
-            drawToPixelatedCanvas(0)
+            drawToPixelatedCanvas(1)
             domesticCheckbox.checked = false;
 
             blackCheckbox.checked = false;
@@ -265,7 +265,7 @@ addVideoGroupListeners()
     blackCheckbox.addEventListener('change', function() {
         if (this.checked) {
             fillCanvas('black');
-            drawToPixelatedCanvas(0)
+            drawToPixelatedCanvas(1)
             domesticCheckbox.checked = false;
 
             whiteCheckbox.checked = false;
@@ -289,7 +289,7 @@ addVideoGroupListeners()
         if (this.checked) {
             const greyShade = greySlider.value; // Get the current slider value
             fillCanvas(`rgb(${greyShade}, ${greyShade}, ${greyShade})`); // Fill canvas with selected grey shade
-            drawToPixelatedCanvas(0)
+            drawToPixelatedCanvas(1)
             domesticCheckbox.checked = false;
 
             whiteCheckbox.checked = false; // Uncheck white checkbox
@@ -314,7 +314,7 @@ addVideoGroupListeners()
         greyValueDisplay.textContent = greyShade;
         if (greyCheckbox.checked) {
             fillCanvas(`rgb(${greyShade}, ${greyShade}, ${greyShade})`);
-            drawToPixelatedCanvas(0)
+            drawToPixelatedCanvas(1)
 
         }
     });

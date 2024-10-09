@@ -1,15 +1,10 @@
 @echo off
+cd "C:\Users\antim\OneDrive\Desktop\pdlc-realsense\PDLC-realsense\backend"
+
+:: Run the Node.js server in a new window and continue the script
+start "" node server.js
+
 cd "C:\Users\antim\OneDrive\Desktop\pdlc-realsense\PDLC-realsense"
 
-:: Call python script
+:: Run Python script
 python twocam.py
-
-:: Wait for 30 seconds
-timeout /t 30 /nobreak
-
-:: Move to backend folder and start Node.js server
-cd backend
-node server.js
-
-:: Open the app
-start "" "C:\Users\antim\OneDrive\Desktop\pdlc-realsense\PDLC-realsense\dist\win-unpacked\pdlc.exe"

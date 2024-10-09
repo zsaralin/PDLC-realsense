@@ -8,7 +8,7 @@ const armLengthSlider = document.getElementById('armSlider');
 const stretchySlider = document.getElementById('stretchySlider');
 const stretchxSlider = document.getElementById('stretchxSlider');
 const offsetX0Slider = document.getElementById('offsetX0Slider');
-const offsetX1Slider = document.getElementById('offsetX0Slider');
+const offsetX1Slider = document.getElementById('offsetX1Slider');
 
 const offsetYSlider = document.getElementById('offsetYSlider');
 
@@ -276,6 +276,12 @@ export function drawBodyLine(poses, ctx, canvasId) {
     transparentCanvas.width = ctx.canvas.width;
     transparentCanvas.height = ctx.canvas.height;
     const transparentCtx = transparentCanvas.getContext('2d');
+
+
+    const offsetX = canvasId === "canvas0_duplicate" ?  parseInt(offsetX0Slider.value, 10) : parseInt(offsetX1Slider.value, 10);
+    const offsetY = parseInt(offsetYSlider.value, 10);
+    const stretchX = parseFloat(stretchxSlider.value, 10);
+    const stretchY = parseFloat(stretchySlider.value, 10);
 
     if (poses.length === 0) {
         drawAndCopyToWhiteCanvas(poses, transparentCtx, canvasId, true);
