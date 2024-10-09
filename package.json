@@ -1,11 +1,30 @@
 {
-  "name": "your-app-name",
+  "name": "pdlc",
   "version": "1.0.0",
+  "description": "Your app description here",
+  "author": "Your Name or Company",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder"
   },
   "devDependencies": {
-    "electron": "^<latest-version>"
+    "electron": "^25.9.8",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "pdlc",
+    "win": {
+      "target": [
+        "nsis"
+      ]    },
+    "nsis": {
+      "shortcutName": "pdlc",
+      "oneClick": true,
+      "perMachine": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
   }
 }
