@@ -334,7 +334,7 @@ export function handleRadialFadeAnimation(canvas, ctx) {
         stopRadialFade,
     };
 }
-export function handleBarMovement(canvas, ctx) {
+export function handleVerticalBarMovement(canvas, ctx) {
     let barX = 0; // Start the bar on the leftmost side
     const barWidth = 10; // Width of the vertical bar
     const barHeight = canvas.height; // Height of the vertical bar
@@ -364,6 +364,58 @@ export function handleBarMovement(canvas, ctx) {
         } else if (event.key === 'ArrowRight') {
             barX += 10; // Move the bar to the right
             if (barX + barWidth > canvas.width) barX = canvas.width - barWidth; // Prevent it from going off the right side
+        }
+        drawBar(); // Redraw the bar in the new position
+    }
+
+    // Attach the keydown event listener
+    window.addEventListener('keydown', handleKeyPress);
+
+    // Initial draw of the bar
+    drawBar();
+
+    // Return a function to stop bar movement and remove event listeners
+    return function stopBarMovement() {
+        window.removeEventListener('keydown', handleKeyPress); // Remove the event listener
+    };
+}
+
+export function handleHorizontalBarMovement(canvas, ctx) {
+    let barY = 0; // Start the bar on the topmost side
+    const barHeight = 10; // Height of the horizontal bar
+    const barWidth = canvas.width; // Width of the horizontal bar
+    const barInfo = document.getElementById('pixelInfo'); // Grab the barInfo div
+
+    // Draw the bar at its current position
+    function drawBar() {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+        ctx.fillStyle = 'black'; // Set the color of the bar
+        ctx.fillRect(0, barY, barWidth, barHeight); // Draw the horizontal bar
+
+        // Calculate the current row based on barY
+        const currentRow = Math.floor(barY / barHeight);
+
+        // Update the barInfo div with the current row
+        barInfo.innerHTML = `Row: ${currentRow}`;
+
+        drawToPixelatedCanvas();
+    }
+
+    // Handle key presses to move the bar
+    function handleKeyPress(event) {
+        if (event.key === 'ArrowUp') {
+            barY -= 10; // Move the bar upwards
+            if (barY < 0) {
+                // If the bar moves above the top, wrap to the bottom
+                barY = canvas.height - barHeight;
+            }
+        } else if (event.key === 'ArrowDown') {
+            barY += 10; // Move the bar downwards
+            if (barY + barHeight > canvas.height) {
+                // If the bar moves below the bottom, wrap to the top
+                barY = 0;
+            }
         }
         drawBar(); // Redraw the bar in the new position
     }

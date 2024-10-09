@@ -1,0 +1,1 @@
+requirements: python 3.9.13 (for pyrealsense2 to work)

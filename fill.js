@@ -1,4 +1,4 @@
-import { handleFadeAnimation, handleGradientAnimation, handleRadialGradientAnimation, handleRadialFadeAnimation, handleBarMovement, handlePixelMovement  } from './dmxTests.js'; // Import fade animation module
+import { handleFadeAnimation, handleGradientAnimation, handleRadialGradientAnimation, handleRadialFadeAnimation, handlePixelMovement , handleHorizontalBarMovement, handleVerticalBarMovement } from './dmxTests.js'; // Import fade animation module
 import { drawToPixelatedCanvas } from './pixelatedCanvas.js';
 import { startDMXAnimationLoop, stopDMXAnimationLoop } from './sendDMX.js';
 document.addEventListener('DOMContentLoaded', function() {
@@ -423,6 +423,7 @@ addVideoGroupListeners()
     });
     verticalBarCheckbox.addEventListener('change', function() {
         if (this.checked) {
+            horizontalBarCheckbox.checked = false; 
             pixelMoverCheckbox.checked = false;
             domesticCheckbox.checked = false;
             videoCheckbox.checked = false; 
@@ -437,7 +438,33 @@ addVideoGroupListeners()
             radialGradientControl.stopRadialGradient(); // Stop radial animation
             radialFadeControl.stopRadialFade(); // Stop radial fade animation
 
-            stopBarMovement = handleBarMovement(canvas, ctx); // Start bar movement and store the stop function
+            stopBarMovement = handleVerticalBarMovement(canvas, ctx); // Start bar movement and store the stop function
+
+        } else{
+            if (stopBarMovement) stopBarMovement(); // Stop bar movement
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+
+        }
+    });
+    horizontalBarCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            pixelMoverCheckbox.checked = false;
+            verticalBarCheckbox.checked = false;
+
+            domesticCheckbox.checked = false;
+            videoCheckbox.checked = false; 
+            poseCheckbox.checked = false; 
+            whiteCheckbox.checked = false; 
+            blackCheckbox.checked = false;
+            greyCheckbox.checked = false; // Uncheck grey checkbox
+            gradientAnimCheckbox.checked = false; // Uncheck gradient checkbox
+            radialAnimCheckbox.checked = false; // Uncheck radial checkbox
+            radialFadeAnimCheckbox.checked = false; // Uncheck radial fade checkbox
+            gradientControl.stopGradient(); // Stop gradient animation
+            radialGradientControl.stopRadialGradient(); // Stop radial animation
+            radialFadeControl.stopRadialFade(); // Stop radial fade animation
+
+            stopBarMovement = handleHorizontalBarMovement(canvas, ctx); // Start bar movement and store the stop function
 
         } else{
             if (stopBarMovement) stopBarMovement(); // Stop bar movement
@@ -448,6 +475,8 @@ addVideoGroupListeners()
 
         pixelMoverCheckbox.addEventListener('change', function() {
             if (this.checked) {
+                horizontalBarCheckbox.checked = false; 
+
                 verticalBarCheckbox.checked = false;
                 domesticCheckbox.checked = false;
                 videoCheckbox.checked = false; 

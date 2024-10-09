@@ -1,17 +1,12 @@
 import { avgCtx } from './pixelatedCanvas.js';
-import OSC from 'osc-js'; // Import OSC library
-
-// Initialize an OSC instance
-const osc = new OSC({ plugin: new OSC.DatagramPlugin({ send: { port: 57121 } }) }); // Change the port if necessary
-osc.open(); // Open the OSC connection
 
 // Initialize an array to store the previous brightness values for smoothing
 let prevBrightnessValues = Array(10).fill().map(() => Array(28).fill(0)); // 28 columns and 10 rows
 
-// Function to set DMX from pixel canvas and send OSC message
+// Function to set DMX from pixel canvas and run continuously in a loop
 export function setDMXFromPixelCanvas(pixelSmoothing) {
     if (!pixelSmoothing) {
-        pixelSmoothing = document.getElementById('pixelSlider').value / 2;
+        pixelSmoothing = document.getElementById('pixelSlider').value /2;
     }
 
     // Grab the ImageData directly from the avgCtx
@@ -31,7 +26,7 @@ export function setDMXFromPixelCanvas(pixelSmoothing) {
             const prevBrightness = prevBrightnessValues[row][col];
 
             // Apply smoothing to calculate the smoothed brightness
-            const smoothedBrightness = currentBrightness// Math.round(prevBrightness + pixelSmoothing * (currentBrightness - prevBrightness));
+            const smoothedBrightness = Math.round(prevBrightness + pixelSmoothing * (currentBrightness - prevBrightness));
 
             // Update the previous brightness value for the next frame
             prevBrightnessValues[row][col] = smoothedBrightness;
@@ -43,18 +38,29 @@ export function setDMXFromPixelCanvas(pixelSmoothing) {
         brightnessValues.push(rowBrightness);
     }
 
-    // Send the brightness values using OSC
-    const msg = new OSC.Message('/dmxValues', brightnessValues.flat()); // Flatten the 2D array to a 1D array
-    osc.send(msg); // Send the OSC message
+    // Send the smoothed brightness values to the server
+    fetch(`http://localhost:3000/set-dmx`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            dmxValues: brightnessValues // Your DMX values here
+        })
+    })
+        .then(response => response.json())
+        .catch(error => console.error('Error:', error));
 }
-
 let backendInterval;
 
 export function startDMXAnimationLoop() {
+    // Variable to hold the interval ID
+
     // Start calling setDMXFromPixelCanvas every 60 milliseconds (roughly 16-17 times per second)
     backendInterval = setInterval(() => {
         setDMXFromPixelCanvas();  // Call the function to send DMX data
-    }, 16.67); // 60 fps
+    }, 16.67); //60 fps
+
 }
 
 export function stopDMXAnimationLoop() {

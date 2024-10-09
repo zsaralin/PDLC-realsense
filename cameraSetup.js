@@ -24,10 +24,10 @@ function checkCameraFeeds() {
     });
 }
 
-
 // Function to create and append camera elements
 function createCameraElements(numCams) {
     const cameraRowContainer = document.getElementById('camera-row');
+    cameraRowContainer.innerHTML = ''; // Clear previous camera elements
 
     // Create the first camera element
     if (numCams >= 1) {
@@ -88,9 +88,35 @@ function createCameraElements(numCams) {
         cameraContainer.appendChild(duplicateContainer);
         cameraRowContainer.appendChild(cameraContainer);
     }
-    startTracking()
+    startTracking();
 }
 
-checkCameraFeeds()
+// Update the number of cameras based on checkbox states
+function updateNumCams() {
+    const cam0Checkbox = document.getElementById('cam0Checkbox');
+    const cam1Checkbox = document.getElementById('cam1Checkbox');
+    
+    numCams = 0; // Reset numCams
 
-export {numCams}
+    if (cam0Checkbox.checked) {
+        numCams++;
+    }
+    if (cam1Checkbox.checked) {
+        numCams++;
+    }
+
+    console.log(`Number of checked cameras: ${numCams}`);
+    createCameraElements(numCams); // Recreate camera elements based on the checkboxes
+}
+
+// Add event listeners to the checkboxes
+const cam0Checkbox = document.getElementById('cam0Checkbox');
+const cam1Checkbox = document.getElementById('cam1Checkbox');
+
+cam0Checkbox.addEventListener('change', updateNumCams);
+cam1Checkbox.addEventListener('change', updateNumCams);
+
+// Initial setup to check camera feeds and set the UI
+checkCameraFeeds();
+
+export { numCams };

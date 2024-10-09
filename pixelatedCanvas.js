@@ -14,11 +14,12 @@ avgCanvas.width = 28;
 avgCanvas.height = 10;
 export const avgCtx = avgCanvas.getContext('2d'); // Exported variable for access by other files
 
-startDMXAnimationLoop() 
+// Initialize previous brightness values for smoothing (for each 28x10 block)
+let prevBrightnessValues = Array(10).fill().map(() => Array(28).fill(0)); // 28 columns and 10 rows
 
-export function drawToPixelatedCanvas() {
-    // pixelatedCanvas.height = whiteCanvas.height = 100;
-    // pixelatedCanvas.width = whiteCanvas.width = 280;
+startDMXAnimationLoop();
+
+export function drawToPixelatedCanvas(pixelSmoothing = 0.5) {
     pixelatedCtx.clearRect(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
     const blockWidth = 10;
     const blockHeight = 10;
@@ -34,6 +35,13 @@ export function drawToPixelatedCanvas() {
         for (let x = 0; x < tempCanvasWidth; x += blockWidth) {
             let totalBrightness = 0;
             let pixelCount = 0;
+
+            // Calculate corresponding 28x10 position
+            const pixelX28 = x / blockWidth;
+            const pixelY10 = y / blockHeight;
+
+            // Get the previous brightness for this block
+            const prevBrightness = prevBrightnessValues[pixelY10][pixelX28];
 
             // Loop through each pixel in the block
             for (let blockY = 0; blockY < blockHeight; blockY++) {
@@ -52,11 +60,17 @@ export function drawToPixelatedCanvas() {
                 }
             }
 
-            // Calculate average brightness for the block
+            // Calculate the average brightness for the block
             const avgBrightness = totalBrightness / pixelCount;
 
-            // Set the fill style to the brightness (grayscale)
-            pixelatedCtx.fillStyle = `rgb(${avgBrightness}, ${avgBrightness}, ${avgBrightness})`;
+            // Apply smoothing to calculate the smoothed brightness
+            const smoothedBrightness = Math.round(prevBrightness + pixelSmoothing * (avgBrightness - prevBrightness));
+
+            // Update the previous brightness value for the next frame
+            prevBrightnessValues[pixelY10][pixelX28] = smoothedBrightness;
+
+            // Set the fill style to the smoothed brightness (grayscale)
+            pixelatedCtx.fillStyle = `rgb(${smoothedBrightness}, ${smoothedBrightness}, ${smoothedBrightness})`;
 
             // Draw the filled square on the pixelated canvas
             pixelatedCtx.fillRect(
@@ -67,11 +81,8 @@ export function drawToPixelatedCanvas() {
             );
 
             // Draw on the 28x10 canvas
-            avgCtx.fillStyle = `rgb(${avgBrightness}, ${avgBrightness}, ${avgBrightness})`;
-            const pixelX = x / blockWidth; // Corresponding X in the 28x10 canvas
-            const pixelY = y / blockHeight; // Corresponding Y in the 28x10 canvas
-            avgCtx.fillRect(pixelX, pixelY, 1, 1); // Draw 1x1 pixel
+            avgCtx.fillStyle = `rgb(${smoothedBrightness}, ${smoothedBrightness}, ${smoothedBrightness})`;
+            avgCtx.fillRect(pixelX28, pixelY10, 1, 1); // Draw 1x1 pixel on the 28x10 canvas
         }
     }
-
 }

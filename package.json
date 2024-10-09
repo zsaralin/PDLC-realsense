@@ -17,7 +17,8 @@
     "win": {
       "target": [
         "nsis"
-      ]    },
+      ]
+    },
     "nsis": {
       "shortcutName": "pdlc",
       "oneClick": true,
@@ -26,5 +27,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
     }
+  },
+  "dependencies": {
+    "osc-js": "^2.4.1"
   }
 }
