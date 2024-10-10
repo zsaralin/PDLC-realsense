@@ -48,10 +48,10 @@ async function loadModel() {
 
         const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, {
             modelType: poseDetection.movenet.modelType.MULTIPOSE_LIGHTNING,
-            // modelUrl: './cdns/movenet/model.json', // Ensure this path is correct
-            maxPoses: 6, // Set the number of poses to the maximum MoveNet can handle (up to 6),
-            enableSmoothing: true, // Set to true to reduce jitter in keypoints
-            inputResolution: { width: 640, height: 480 } // Set the resolution of the input images
+            modelUrl: '/cdns/movenet/model.json', // Ensure this path is correct
+            // maxPoses: 6, // Set the number of poses to the maximum MoveNet can handle (up to 6),
+            // enableSmoothing: true, // Set to true to reduce jitter in keypoints
+            // inputResolution: { width: 640, height: 480 } // Set the resolution of the input images
         });
 
         console.log("Model loaded successfully:", detector);
@@ -70,11 +70,17 @@ async function trackPoses(detector, imgId, canvasId) {
     const ctx = canvas.getContext('2d');
 
     async function detect() {
+        if (img.width === 0 || img.height === 0) {
+            console.warn(`Skipping detection for ${canvasId}: Image has invalid dimensions.`);
+            requestAnimationFrame(detect); // Skip this frame and move to the next one
+            return; // Exit this detect cycle
+        }
+        canvas.width = img.width;
+        canvas.height = img.height;
         const rightEdgeCutoff = canvasId === "canvas0_duplicate" ? parseInt(document.getElementById('rightEdgeCutoff0Slider').value):parseInt(document.getElementById('rightEdgeCutoff1Slider').value)
         const leftEdgeCutoff = canvasId === "canvas0_duplicate" ? parseInt(document.getElementById('leftEdgeCutoff0Slider').value):parseInt(document.getElementById('leftEdgeCutoff1Slider').value)
         const topEdgeCutoff = canvasId === "canvas0_duplicate" ? parseInt(document.getElementById('topEdgeCutoff0Slider').value):parseInt(document.getElementById('topEdgeCutoff1Slider').value)
         const bottomEdgeCutoff = canvasId === "canvas0_duplicate" ? parseInt(document.getElementById('bottomEdgeCutoff0Slider').value):parseInt(document.getElementById('bottomEdgeCutoff1Slider').value)
-        
         if (poseCheckbox.checked || domesticCheckbox.checked) {
             updateFPS();
 
@@ -112,30 +118,35 @@ async function trackPoses(detector, imgId, canvasId) {
                 }
 
                 // Estimate poses on the original image
-                let poses = await detector.estimatePoses(canvas);
-                // Check if mirroring is enabled
-                const isMirrored = (canvasId === 'canvas0_duplicate' && mirror0Checkbox.checked) ||
-                                   (canvasId === 'canvas1_duplicate' && mirror1Checkbox.checked);
+                // console.log(detector.estimatePoses(canvas))
+                if (canvas.width === 0 || canvas.height === 0) {
+                    console.error("Canvas has invalid dimensions:", canvas.width, canvas.height);
+                } else {
+                    let poses = await detector.estimatePoses(canvas);
+                    const isMirrored = (canvasId === 'canvas0_duplicate' && mirror0Checkbox.checked) ||
+                        (canvasId === 'canvas1_duplicate' && mirror1Checkbox.checked);
 
-                // If mirrored, flip the keypoints horizontally
-                if (isMirrored) {
-                    poses.forEach(pose => {
-                        pose.keypoints.forEach(keypoint => {
-                            keypoint.x = canvas.width - keypoint.x;  // Flip horizontally
+                    // If mirrored, flip the keypoints horizontally
+                    if (isMirrored) {
+                        poses.forEach(pose => {
+                            pose.keypoints.forEach(keypoint => {
+                                keypoint.x = canvas.width - keypoint.x;  // Flip horizontally
+                            });
                         });
-                    });
-                }
+                    }
 
-                // Draw the stick figure only if there are valid poses
+                    // Draw the stick figure only if there are valid poses
                     if(poseCheckbox.checked){
-                    drawStickFigure(poses, ctx, canvasId);
+                        drawStickFigure(poses, ctx, canvasId);
                     }
                     else if(domesticCheckbox.checked){
                         drawBodyLine(poses, ctx, canvasId)
                     }
-                
 
-                ctx.restore();
+
+                    ctx.restore();
+                }
+
             }
         }
 
