@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const radialAnimCheckbox = document.getElementById('radialAnimCheckbox');
     const radialFadeAnimCheckbox = document.getElementById('radialFadeAnimCheckbox');
     const startChaseCheckbox = document.getElementById('startChase'); // Add your startChase checkbox
+    const verticalBarCheckbox = document.getElementById('verticalBarCheckbox')
+    const horizontalBarCheckbox = document.getElementById('horizontalBarCheckbox')
+    const pixelMoverCheckbox = document.getElementById('pixelMoverCheckbox')
 
     const canvas = document.getElementById('whiteCanvas')
     const ctx = canvas.getContext('2d')
@@ -402,6 +405,7 @@ addVideoGroupListeners()
             gradientControl.stopGradient(); // Stop gradient animation
             radialGradientControl.stopRadialGradient(); // Stop radial animation
             radialFadeControl.stopRadialFade(); // Stop radial fade animation
+            if (stopPixelMovement) stopPixelMovement(); // Stop bar movement
 
             stopBarMovement = handleVerticalBarMovement(canvas, ctx); // Start bar movement and store the stop function
 
@@ -427,6 +431,7 @@ addVideoGroupListeners()
             gradientControl.stopGradient(); // Stop gradient animation
             radialGradientControl.stopRadialGradient(); // Stop radial animation
             radialFadeControl.stopRadialFade(); // Stop radial fade animation
+            if (stopPixelMovement) stopPixelMovement(); // Stop bar movement
 
             stopBarMovement = handleHorizontalBarMovement(canvas, ctx); // Start bar movement and store the stop function
 

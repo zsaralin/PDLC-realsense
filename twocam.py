@@ -1,7 +1,7 @@
 import pyrealsense2 as rs
 import numpy as np
 import cv2
-import subprocess  # Import subprocess to launch the app
+import subprocess
 from flask_cors import CORS
 from flask import request, jsonify, Flask, Response
 
@@ -11,23 +11,26 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 # Initialize variables for camera pipelines
 pipeline0 = None
 pipeline1 = None
+depth_scale_0 = None
+depth_scale_1 = None
 
+# Attempt to start Camera 0
 try:
     pipeline0 = rs.pipeline()
     config0 = rs.config()
-    config0.enable_device('207322250086')#'207322250086')  # Camera 0 serial number
+    config0.enable_device('213622252175')  # Camera 0 serial number
     config0.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-    config0.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)  # Enable depth stream
+    config0.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
     pipeline_profile0 = pipeline0.start(config0)
 
     # Get the depth scale for Camera 0
     depth_sensor = pipeline_profile0.get_device().first_depth_sensor()
-    depth_scale = depth_sensor.get_depth_scale()
-    print(f"Depth Scale for Camera 0: {depth_scale}")
-
+    depth_scale_0 = depth_sensor.get_depth_scale()
+    print(f"Depth Scale for Camera 0: {depth_scale_0}")
     print("Camera 0 started successfully.")
 except Exception as e:
     print("Camera 0 not available:", e)
+    pipeline0 = None  # Mark Camera 0 as unavailable
 
 # Attempt to start Camera 1
 try:
@@ -35,17 +38,17 @@ try:
     config1 = rs.config()
     config1.enable_device('213622253034')  # Camera 1 serial number
     config1.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-    config1.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)  # Enable depth stream
+    config1.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
     pipeline_profile1 = pipeline1.start(config1)
 
     # Get the depth scale for Camera 1
     depth_sensor = pipeline_profile1.get_device().first_depth_sensor()
-    depth_scale = depth_sensor.get_depth_scale()
-    print(f"Depth Scale for Camera 1: {depth_scale}")
-
+    depth_scale_1 = depth_sensor.get_depth_scale()
+    print(f"Depth Scale for Camera 1: {depth_scale_1}")
     print("Camera 1 started successfully.")
 except Exception as e:
     print("Camera 1 not available:", e)
+    pipeline1 = None  # Mark Camera 1 as unavailable
 
 # Launch the external app right after attempting to start the cameras
 try:
@@ -65,7 +68,7 @@ max_depth_threshold_1 = 6  # Default maximum depth (meters)
 # Function to generate frames from Camera 0 with optional depth filtering
 def gen_frames_camera0():
     if not pipeline0:
-        return  # If the pipeline is not initialized, do not attempt to stream
+        return
     while True:
         try:
             frames = pipeline0.wait_for_frames()
@@ -80,14 +83,11 @@ def gen_frames_camera0():
             depth_image = np.asanyarray(depth_frame.get_data())
 
             # Convert depth data to meters by multiplying by depth scale
-            depth_image_meters = depth_image * depth_scale
+            depth_image_meters = depth_image * depth_scale_0
 
-            # Only apply masking if depth thresholds are not default (0 to 6 meters)
+            # Apply depth masking
             if min_depth_threshold_0 != 0 or max_depth_threshold_0 != 6:
-                # Create a mask for pixels that are either too close or too far
                 mask = (depth_image_meters < min_depth_threshold_0) | (depth_image_meters > max_depth_threshold_0)
-
-                # Apply the mask to the color image: set all pixels outside the valid depth range to white
                 color_image[mask] = [255, 255, 255]
 
             # Encode the color image
@@ -103,7 +103,7 @@ def gen_frames_camera0():
 # Function to generate frames from Camera 1 with optional depth filtering
 def gen_frames_camera1():
     if not pipeline1:
-        return  # If the pipeline is not initialized, do not attempt to stream
+        return
     while True:
         try:
             frames = pipeline1.wait_for_frames()
@@ -118,14 +118,11 @@ def gen_frames_camera1():
             depth_image = np.asanyarray(depth_frame.get_data())
 
             # Convert depth data to meters by multiplying by depth scale
-            depth_image_meters = depth_image * depth_scale
+            depth_image_meters = depth_image * depth_scale_1
 
-            # Only apply masking if depth thresholds are not default (0 to 6 meters)
+            # Apply depth masking
             if min_depth_threshold_1 != 0 or max_depth_threshold_1 != 6:
-                # Create a mask for pixels that are either too close or too far
                 mask = (depth_image_meters < min_depth_threshold_1) | (depth_image_meters > max_depth_threshold_1)
-
-                # Apply the mask to the color image: set all pixels outside the valid depth range to white
                 color_image[mask] = [255, 255, 255]
 
             # Encode the color image
@@ -153,7 +150,6 @@ def video_feed_1():
         return Response(gen_frames_camera1(), mimetype='multipart/x-mixed-replace; boundary=frame')
     else:
         return Response("Camera 1 not available", status=404)
-
 # Function to update minZ from the frontend
 @app.route('/update_minZ0', methods=['POST'])
 def update_minZ0():

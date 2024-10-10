@@ -530,6 +530,7 @@ fetch('http://localhost:3000/get-dmx-channel', {
 });
     // Return a function to stop pixel movement and remove event listeners
     return function stopPixelMovement() {
+        console.log('STOPPIN ')
         window.removeEventListener('keydown', handleKeyPress); // Remove the event listener
     };
 }

@@ -57,6 +57,11 @@ function createCameraElements(numCams) {
         cameraContainer.appendChild(videoFeed);
         cameraContainer.appendChild(duplicateContainer);
         cameraRowContainer.appendChild(cameraContainer);
+        if(numCams === 1) {
+            videoFeed.onload = function () {
+                startTracking();
+            }
+        }
     }
 
     // Create the second camera element only if numCams is 2
@@ -87,8 +92,11 @@ function createCameraElements(numCams) {
         cameraContainer.appendChild(videoFeed);
         cameraContainer.appendChild(duplicateContainer);
         cameraRowContainer.appendChild(cameraContainer);
+        videoFeed.onload = function() {
+            startTracking();
+        }
     }
-    startTracking();
+
 }
 
 // Update the number of cameras based on checkbox states

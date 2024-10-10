@@ -27,9 +27,10 @@ export function startTracking(){
 function initializeCanvasAndSliders(canvasId) {
     const canvas = document.getElementById(canvasId);
     const img = document.getElementById(canvasId.replace('canvas', 'videoFeed')); // Assuming canvasId and videoFeedId match pattern
+
     canvas.width = img.width;
     canvas.height = img.height;
-
+    console.log(canvasId , canvas.width)
     // Set slider max values based on canvas size
     setSliderMax("rightEdgeCutoff0Slider", canvas.width);
     setSliderMax("leftEdgeCutoff0Slider", canvas.width);
