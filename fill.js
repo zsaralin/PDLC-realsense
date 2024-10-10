@@ -156,16 +156,6 @@ function addVideoGroupListeners() {
     });
 }
 
-// Master checkbox listener (videoCheckbox)
-document.getElementById('videoCheckbox').addEventListener('change', function() {
-    if (this.checked) {
-        // Re-enable video playback for the last selected video
-        handleVideoCheckboxGroupChange();
-    } else {
-        // Pause video but keep the last selected sub-checkbox checked
-        clearVideo(); // Clear canvas and stop any playing video
-    }
-});
 
 // Add listeners for the sub-checkboxes when the DOM is ready
 addVideoGroupListeners()
@@ -190,7 +180,6 @@ addVideoGroupListeners()
         if (this.checked) {
             domesticCheckbox.checked = false;
             whiteCheckbox.checked = false; 
-            videoCheckbox.checked = false;
             blackCheckbox.checked = false;
             greyCheckbox.checked = false; // Uncheck grey checkbox
             gradientAnimCheckbox.checked = false; // Uncheck gradient checkbox
@@ -209,7 +198,6 @@ addVideoGroupListeners()
         if (this.checked) {
             poseCheckbox.checked = false;
             whiteCheckbox.checked = false; 
-            videoCheckbox.checked = false;
             blackCheckbox.checked = false;
             greyCheckbox.checked = false; // Uncheck grey checkbox
             gradientAnimCheckbox.checked = false; // Uncheck gradient checkbox
@@ -222,22 +210,7 @@ addVideoGroupListeners()
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
     });
-    videoCheckbox.addEventListener('change', function() {
-        if (this.checked) {
-            domesticCheckbox.checked = false;
-
-            poseCheckbox.checked = false; 
-            whiteCheckbox.checked = false; 
-            blackCheckbox.checked = false;
-            greyCheckbox.checked = false; // Uncheck grey checkbox
-            gradientAnimCheckbox.checked = false; // Uncheck gradient checkbox
-            radialAnimCheckbox.checked = false; // Uncheck radial checkbox
-            radialFadeAnimCheckbox.checked = false; // Uncheck radial fade checkbox
-            gradientControl.stopGradient(); // Stop gradient animation
-            radialGradientControl.stopRadialGradient(); // Stop radial animation
-            radialFadeControl.stopRadialFade(); // Stop radial fade animation
-        }
-    });
+   
     // Event listeners for checkboxes
     whiteCheckbox.addEventListener('change', function() {
         if (this.checked) {
@@ -246,7 +219,6 @@ addVideoGroupListeners()
             domesticCheckbox.checked = false;
 
             blackCheckbox.checked = false;
-            videoCheckbox.checked = false;
 
             greyCheckbox.checked = false; // Uncheck grey checkbox
             gradientAnimCheckbox.checked = false; // Uncheck gradient checkbox
@@ -269,7 +241,6 @@ addVideoGroupListeners()
             domesticCheckbox.checked = false;
 
             whiteCheckbox.checked = false;
-            videoCheckbox.checked = false;
 
             greyCheckbox.checked = false; // Uncheck grey checkbox
             gradientAnimCheckbox.checked = false; // Uncheck gradient checkbox
@@ -293,7 +264,6 @@ addVideoGroupListeners()
             domesticCheckbox.checked = false;
 
             whiteCheckbox.checked = false; // Uncheck white checkbox
-            videoCheckbox.checked = false;
 
             blackCheckbox.checked = false; // Uncheck black checkbox
             gradientAnimCheckbox.checked = false; // Uncheck gradient checkbox
@@ -323,7 +293,6 @@ addVideoGroupListeners()
     fadeAnimCheckbox.addEventListener('change', function() {
         if (this.checked) {
             fadeControl.startFade();
-            videoCheckbox.checked = false;
             domesticCheckbox.checked = false;
 
             whiteCheckbox.checked = false; // Uncheck white checkbox
@@ -349,7 +318,6 @@ addVideoGroupListeners()
     gradientAnimCheckbox.addEventListener('change', function() {
         if (this.checked) {
             gradientControl.startGradient();
-            videoCheckbox.checked = false;
             domesticCheckbox.checked = false;
 
             whiteCheckbox.checked = false; // Uncheck white checkbox
@@ -373,7 +341,6 @@ addVideoGroupListeners()
     // Radial gradient animation checkbox event listener
     radialAnimCheckbox.addEventListener('change', function() {
         if (this.checked) {
-            videoCheckbox.checked = false;
             domesticCheckbox.checked = false;
 
             radialGradientControl.startRadialGradient();
@@ -399,7 +366,6 @@ addVideoGroupListeners()
     // Radial fade animation checkbox event listener
     radialFadeAnimCheckbox.addEventListener('change', function() {
         if (this.checked) {
-            videoCheckbox.checked = false;
             domesticCheckbox.checked = false;
 
             radialFadeControl.startRadialFade(); // Start the radial fade animation
@@ -426,7 +392,6 @@ addVideoGroupListeners()
             horizontalBarCheckbox.checked = false; 
             pixelMoverCheckbox.checked = false;
             domesticCheckbox.checked = false;
-            videoCheckbox.checked = false; 
             poseCheckbox.checked = false; 
             whiteCheckbox.checked = false; 
             blackCheckbox.checked = false;
@@ -452,7 +417,6 @@ addVideoGroupListeners()
             verticalBarCheckbox.checked = false;
 
             domesticCheckbox.checked = false;
-            videoCheckbox.checked = false; 
             poseCheckbox.checked = false; 
             whiteCheckbox.checked = false; 
             blackCheckbox.checked = false;
@@ -479,7 +443,6 @@ addVideoGroupListeners()
 
                 verticalBarCheckbox.checked = false;
                 domesticCheckbox.checked = false;
-                videoCheckbox.checked = false; 
                 poseCheckbox.checked = false; 
                 whiteCheckbox.checked = false; 
                 blackCheckbox.checked = false;

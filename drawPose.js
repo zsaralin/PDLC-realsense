@@ -10,7 +10,8 @@ const stretchxSlider = document.getElementById('stretchxSlider');
 const offsetX0Slider = document.getElementById('offsetX0Slider');
 const offsetX1Slider = document.getElementById('offsetX1Slider');
 
-const offsetYSlider = document.getElementById('offsetYSlider');
+const offsetY0Slider = document.getElementById('offsetY0Slider');
+const offsetY1Slider = document.getElementById('offsetY1Slider');
 
 const previousKeypoints = {
     'canvas0_duplicate': {},
@@ -65,7 +66,7 @@ export function drawStickFigure(poses, ctx, canvasId) {
     const transparentCtx = transparentCanvas.getContext('2d');
 
     const offsetX = canvasId === "canvas0_duplicate" ?  parseInt(offsetX0Slider.value, 10) : parseInt(offsetX1Slider.value, 10);
-    const offsetY = parseInt(offsetYSlider.value, 10);
+    const offsetY = canvasId === "canvas0_duplicate" ?  parseInt(offsetY0Slider.value, 10) : parseInt(offsetY1Slider.value, 10);
     const stretchX = parseFloat(stretchxSlider.value, 10);
     const stretchY = parseFloat(stretchySlider.value, 10);
     if (poses.length === 0) {
@@ -279,7 +280,7 @@ export function drawBodyLine(poses, ctx, canvasId) {
 
 
     const offsetX = canvasId === "canvas0_duplicate" ?  parseInt(offsetX0Slider.value, 10) : parseInt(offsetX1Slider.value, 10);
-    const offsetY = parseInt(offsetYSlider.value, 10);
+    const offsetY = 0//parseInt(offsetYSlider.value, 10);
     const stretchX = parseFloat(stretchxSlider.value, 10);
     const stretchY = parseFloat(stretchySlider.value, 10);
 

@@ -4,18 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDLC (glasstec)</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
-    <script src="
-    https://cdn.jsdelivr.net/npm/osc-js@2.4.1/lib/osc.min.js
-    "></script></head>
-<body>
-    <script>
-        // OSC is now available globally, no need to import it
-        const osc = new OSC();  // Create a new instance of OSC
-        console.log(osc);
-    </script>
-</body>
+    <script src="./cdns/tfjs.js"></script>
+    <script src="./cdns/pose-detection.js"></script>
+</head>
 </html>
 
 
@@ -46,16 +37,7 @@
             <label>
                 <input type="checkbox" id="radialFadeAnimCheckbox"> Screen Saver (2)
             </label>
-            <label>
-                <input type="checkbox" id="videoCheckbox"> Videos (3)
-            </label>
-            <input type="checkbox" id="videoCheckbox0" class="video-group" checked>
-            <input type="checkbox" id="videoCheckbox1" class="video-group"> 
-            <input type="checkbox" id="videoCheckbox2" class="video-group"> 
-            <input type="checkbox" id="videoCheckbox3" class="video-group"> 
-            <input type="checkbox" id="videoCheckbox4" class="video-group">
-            <label>
-                <input type="checkbox" id="domesticCheckbox"> Domestic PDLC (4)
+                <input type="checkbox" id="domesticCheckbox"> Domestic PDLC (3)
             </label>
             <div class="checkbox-row">
                 <label>
@@ -141,9 +123,15 @@
             </div>
             <div class="slider-container">   
                 <button class="decrease-btn">-</button>
-                <input type="range" id="offsetYSlider" min="-100" max="100">
+                <input type="range" id="offsetY0Slider" min="-100" max="100">
                 <button class="increase-btn">+</button>
-                <label for="offsetYSlider">Offset Y: <span id="offsetYSliderValue">0</span></label>
+                <label for="offsetY0Slider">Offset Y (cam0): <span id="offsetY0SliderValue">0</span></label>
+            </div>
+            <div class="slider-container">   
+                <button class="decrease-btn">-</button>
+                <input type="range" id="offsetY1Slider" min="-100" max="100">
+                <button class="increase-btn">+</button>
+                <label for="offsetY1Slider">Offset Y (cam1): <span id="offsetY1SliderValue">0</span></label>
             </div>
         </div>
         <div class="checkbox-group">
@@ -163,64 +151,126 @@
     </div>
 
         <div class="checkbox-group">
-
-        <div class="slider-container">   
-            <button class="decrease-btn">-</button>
-            <input type="range" id="minZSlider" min="0" max="6" step = ".1">
-            <button class="increase-btn">+</button>
-            <label for="minZSlider">Min Z: <span id="minZSliderValue">0</span></label>
-        </div>
-        <div class="slider-container">   
-            <button class="decrease-btn">-</button>
-            <input type="range" id="maxZSlider" min="0" max="6" step = ".1">
-            <button class="increase-btn">+</button>
-            <label for="maxZSlider">Max Z: <span id="maxZSliderValue">6</span></label>
-        </div>
+            <div class="slider-container">   
+                <button class="decrease-btn">-</button>
+                <input type="range" id="minZ0Slider" min="0" max="6" step=".1">
+                <button class="increase-btn">+</button>
+                <label for="minZ0Slider">Min Z (cam0): <span id="minZ0SliderValue">0</span></label>
+            </div>
+            <!-- Max Z Slider for Cam 0 -->
+            <div class="slider-container">
+                <button class="decrease-btn">-</button>
+                <input type="range" id="maxZ0Slider" min="0" max="6" step=".1">
+                <button class="increase-btn">+</button>
+                <label for="maxZ0Slider">Max Z (cam0): <span id="maxZ0SliderValue">6</span></label>
+            </div>
+            <!-- Min Z Slider for Cam 1 -->
+            <div class="slider-container">   
+                <button class="decrease-btn">-</button>
+                <input type="range" id="minZ1Slider" min="0" max="6" step=".1">
+                <button class="increase-btn">+</button>
+                <label for="minZ1Slider">Min Z (cam1): <span id="minZ1SliderValue">0</span></label>
+            </div>
+            
+            <!-- Max Z Slider for Cam 1 -->
+            <div class="slider-container">   
+                <button class="decrease-btn">-</button>
+                <input type="range" id="maxZ1Slider" min="0" max="6" step=".1">
+                <button class="increase-btn">+</button>
+                <label for="maxZ1Slider">Max Z (cam1): <span id="maxZ1SliderValue">6</span></label>
+            </div>
     </div>
-<!-- Add Cutoff Sliders -->
-<div class="checkbox-group">
+        <div>
+        <button class="collapsible">Edge Cutoff Sliders (Toggle)</button>
+        <div class="content">
+            <div class="checkbox-group">
+                <!-- Right Edge Cutoff (Cam 0) -->
+                <div class="slider-container">
+                    <button class="decrease-btn">-</button>
+                    <input type="range" id="rightEdgeCutoff0Slider" min="0" max="10">
+                    <button class="increase-btn">+</button>
+                    <label for="rightEdgeCutoff0Slider">Right Edge Cutoff (cam0): <span id="rightEdgeCutoff0SliderValue">0</span></label>
+                </div>
 
-        <div class="slider-container">   
-            <button class="decrease-btn">-</button>
-            <input type="range" id="rightEdgeCutoffSlider" min="0" max="10">
-            <button class="increase-btn">+</button>
-            <label for="rightEdgeCutoffSlider">Right Edge Cutoff: <span id="rightEdgeCutoffSliderValue">0</span></label>
-        </div>
+                <!-- Right Edge Cutoff (Cam 1) -->
+                <div class="slider-container">
+                    <button class="decrease-btn">-</button>
+                    <input type="range" id="rightEdgeCutoff1Slider" min="0" max="10">
+                    <button class="increase-btn">+</button>
+                    <label for="rightEdgeCutoff1Slider">Right Edge Cutoff (cam1): <span id="rightEdgeCutoff1SliderValue">0</span></label>
+                </div>
 
-        <div class="slider-container">   
-            <button class="decrease-btn">-</button>
-            <input type="range" id="leftEdgeCutoffSlider" min="0" max="10">
-            <button class="increase-btn">+</button>
-            <label for="leftEdgeCutoffSlider">Left Edge Cutoff: <span id="leftEdgeCutoffSliderValue">0</span></label>
-        </div>
+                <!-- Left Edge Cutoff (Cam 0) -->
+                <div class="slider-container">
+                    <button class="decrease-btn">-</button>
+                    <input type="range" id="leftEdgeCutoff0Slider" min="0" max="10">
+                    <button class="increase-btn">+</button>
+                    <label for="leftEdgeCutoff0Slider">Left Edge Cutoff (cam0): <span id="leftEdgeCutoff0SliderValue">0</span></label>
+                </div>
 
-        <div class="slider-container">   
-            <button class="decrease-btn">-</button>
-            <input type="range" id="topEdgeCutoffSlider" min="0" max="10">
-            <button class="increase-btn">+</button>
-            <label for="topEdgeCutoffSlider">Top Edge Cutoff: <span id="topEdgeCutoffSliderValue">0</span></label>
-        </div>
+                <!-- Left Edge Cutoff (Cam 1) -->
+                <div class="slider-container">
+                    <button class="decrease-btn">-</button>
+                    <input type="range" id="leftEdgeCutoff1Slider" min="0" max="10">
+                    <button class="increase-btn">+</button>
+                    <label for="leftEdgeCutoff1Slider">Left Edge Cutoff (cam1): <span id="leftEdgeCutoff1SliderValue">0</span></label>
+                </div>
 
-        <div class="slider-container">   
-            <button class="decrease-btn">-</button>
-            <input type="range" id="bottomEdgeCutoffSlider" min="0" max="10">
-            <button class="increase-btn">+</button>
-            <label for="bottomEdgeCutoffSlider">Bottom Edge Cutoff: <span id="bottomEdgeCutoffSliderValue">0</span></label>
+                <!-- Top Edge Cutoff (Cam 0) -->
+                <div class="slider-container">
+                    <button class="decrease-btn">-</button>
+                    <input type="range" id="topEdgeCutoff0Slider" min="0" max="10">
+                    <button class="increase-btn">+</button>
+                    <label for="topEdgeCutoff0Slider">Top Edge Cutoff (cam0): <span id="topEdgeCutoff0SliderValue">0</span></label>
+                </div>
+
+                <!-- Top Edge Cutoff (Cam 1) -->
+                <div class="slider-container">
+                    <button class="decrease-btn">-</button>
+                    <input type="range" id="topEdgeCutoff1Slider" min="0" max="10">
+                    <button class="increase-btn">+</button>
+                    <label for="topEdgeCutoff1Slider">Top Edge Cutoff (cam1): <span id="topEdgeCutoff1SliderValue">0</span></label>
+                </div>
+
+                <!-- Bottom Edge Cutoff (Cam 0) -->
+                <div class="slider-container">
+                    <button class="decrease-btn">-</button>
+                    <input type="range" id="bottomEdgeCutoff0Slider" min="0" max="10">
+                    <button class="increase-btn">+</button>
+                    <label for="bottomEdgeCutoff0Slider">Bottom Edge Cutoff (cam0): <span id="bottomEdgeCutoff0SliderValue">0</span></label>
+                </div>
+
+                <!-- Bottom Edge Cutoff (Cam 1) -->
+                <div class="slider-container">
+                    <button class="decrease-btn">-</button>
+                    <input type="range" id="bottomEdgeCutoff1Slider" min="0" max="10">
+                    <button class="increase-btn">+</button>
+                    <label for="bottomEdgeCutoff1Slider">Bottom Edge Cutoff (cam1): <span id="bottomEdgeCutoff1SliderValue">0</span></label>
+                </div>
+            </div>
         </div>
         </div>
+        <div style = "padding-top: 10px">
         <label>Arrow Bars (with CSV mapping)</label>
         <div class="checkbox-row">
         <label>
             <input type="checkbox" id="verticalBarCheckbox"> Vertical Bar 
         </label>
+        </div>
+        <div class="checkbox-row">
+
         <label>
-            <input type="checkbox" id="horizontalBarCheckbox"> Horizontal Bar Checkbox
+            <input type="checkbox" id="horizontalBarCheckbox"> Horizontal Bar
         </label>
+    </div>
+    <div class="checkbox-row">
+
         <label>
             <input type="checkbox" id="pixelMoverCheckbox"> Single Pixel
         </label>
     </div>
-
+    </div>
+<div style="padding-top: 10px;">
         <label>Channel Chase (no CSV mapping)</label>
         <div class="checkbox-row">
         <label>
@@ -228,7 +278,7 @@
         </label>
         </div>
         <button id="saveButton">Save</button>
-
+</div>
     </div>
     <div id="fpsDisplay" style="position: absolute; bottom: 10px; right: 10px; color: black; font-size:10px; z-index: 1000;">
         FPS: 0

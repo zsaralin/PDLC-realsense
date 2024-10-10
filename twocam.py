@@ -15,7 +15,7 @@ pipeline1 = None
 try:
     pipeline0 = rs.pipeline()
     config0 = rs.config()
-    config0.enable_device('207322250086')  # Camera 0 serial number
+    config0.enable_device('213622252175')#'207322250086')  # Camera 0 serial number
     config0.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
     config0.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)  # Enable depth stream
     pipeline_profile0 = pipeline0.start(config0)
@@ -57,8 +57,10 @@ except Exception as e:
     print("Failed to launch the app:", e)
 
 # Default min/max depth thresholds
-min_depth_threshold = 0  # Default minimum depth (meters)
-max_depth_threshold = 6  # Default maximum depth (meters)
+min_depth_threshold_0 = 0  # Default minimum depth (meters)
+max_depth_threshold_0 = 6  # Default maximum depth (meters)
+min_depth_threshold_1 = 0  # Default minimum depth (meters)
+max_depth_threshold_1 = 6  # Default maximum depth (meters)
 
 # Function to generate frames from Camera 0 with optional depth filtering
 def gen_frames_camera0():
@@ -81,9 +83,9 @@ def gen_frames_camera0():
             depth_image_meters = depth_image * depth_scale
 
             # Only apply masking if depth thresholds are not default (0 to 6 meters)
-            if min_depth_threshold != 0 or max_depth_threshold != 6:
+            if min_depth_threshold_0 != 0 or max_depth_threshold_0 != 6:
                 # Create a mask for pixels that are either too close or too far
-                mask = (depth_image_meters < min_depth_threshold) | (depth_image_meters > max_depth_threshold)
+                mask = (depth_image_meters < min_depth_threshold_0) | (depth_image_meters > max_depth_threshold_0)
 
                 # Apply the mask to the color image: set all pixels outside the valid depth range to white
                 color_image[mask] = [255, 255, 255]
@@ -119,9 +121,9 @@ def gen_frames_camera1():
             depth_image_meters = depth_image * depth_scale
 
             # Only apply masking if depth thresholds are not default (0 to 6 meters)
-            if min_depth_threshold != 0 or max_depth_threshold != 6:
+            if min_depth_threshold_1 != 0 or max_depth_threshold_1 != 6:
                 # Create a mask for pixels that are either too close or too far
-                mask = (depth_image_meters < min_depth_threshold) | (depth_image_meters > max_depth_threshold)
+                mask = (depth_image_meters < min_depth_threshold_1) | (depth_image_meters > max_depth_threshold_1)
 
                 # Apply the mask to the color image: set all pixels outside the valid depth range to white
                 color_image[mask] = [255, 255, 255]
@@ -153,25 +155,47 @@ def video_feed_1():
         return Response("Camera 1 not available", status=404)
 
 # Function to update minZ from the frontend
-@app.route('/update_minZ', methods=['POST'])
-def update_minZ():
-    global min_depth_threshold
+@app.route('/update_minZ0', methods=['POST'])
+def update_minZ0():
+    global min_depth_threshold_0
     data = request.json
-    new_minZ = data.get('minZ', None)  # Get the minZ value from the request body
+    new_minZ = data.get('minZ0', None)  # Get the minZ value from the request body
     if new_minZ is not None and isinstance(new_minZ, (float, int)):
-        min_depth_threshold = float(new_minZ)  # Update the global minZ value
-        return jsonify({"message": f"minZ updated to {min_depth_threshold}"}), 200
+        min_depth_threshold_0 = float(new_minZ)  # Update the global minZ value
+        return jsonify({"message": f"minZ0 updated to {min_depth_threshold_0}"}), 200
     return jsonify({"error": "Invalid minZ value"}), 400
 
 # Function to update maxZ from the frontend
-@app.route('/update_maxZ', methods=['POST'])
-def update_maxZ():
-    global max_depth_threshold
+@app.route('/update_maxZ0', methods=['POST'])
+def update_maxZ0():
+    global max_depth_threshold_0
     data = request.json
-    new_maxZ = data.get('maxZ', None)  # Get the maxZ value from the request body
+    new_maxZ = data.get('maxZ0', None)  # Get the maxZ value from the request body
     if new_maxZ is not None and isinstance(new_maxZ, (float, int)):
-        max_depth_threshold = float(new_maxZ)  # Update the global maxZ value
-        return jsonify({"message": f"maxZ updated to {max_depth_threshold}"}), 200
+        max_depth_threshold_0 = float(new_maxZ)  # Update the global maxZ value
+        return jsonify({"message": f"maxZ0 updated to {max_depth_threshold_0}"}), 200
+    return jsonify({"error": "Invalid maxZ value"}), 400
+
+@app.route('/update_minZ1', methods=['POST'])
+def update_minZ1():
+    global min_depth_threshold_1
+
+    data = request.json
+    new_minZ = data.get('minZ1', None)  # Get the minZ value from the request body
+    if new_minZ is not None and isinstance(new_minZ, (float, int)):
+        min_depth_threshold_1 = float(new_minZ)  # Update the global minZ value
+        return jsonify({"message": f"minZ0 updated to {min_depth_threshold_1}"}), 200
+    return jsonify({"error": "Invalid minZ value"}), 400
+
+# Function to update maxZ from the frontend
+@app.route('/update_maxZ1', methods=['POST'])
+def update_maxZ1():
+    global max_depth_threshold_1
+    data = request.json
+    new_maxZ = data.get('maxZ1', None)  # Get the maxZ value from the request body
+    if new_maxZ is not None and isinstance(new_maxZ, (float, int)):
+        max_depth_threshold_1 = float(new_maxZ)  # Update the global maxZ value
+        return jsonify({"message": f"maxZ0 updated to {max_depth_threshold_1}"}), 200
     return jsonify({"error": "Invalid maxZ value"}), 400
 
 if __name__ == '__main__':

@@ -31,10 +31,14 @@ function initializeCanvasAndSliders(canvasId) {
     canvas.height = img.height;
 
     // Set slider max values based on canvas size
-    setSliderMax("rightEdgeCutoffSlider", canvas.width);
-    setSliderMax("leftEdgeCutoffSlider", canvas.width);
-    setSliderMax("topEdgeCutoffSlider", canvas.height);
-    setSliderMax("bottomEdgeCutoffSlider", canvas.height);
+    setSliderMax("rightEdgeCutoff0Slider", canvas.width);
+    setSliderMax("leftEdgeCutoff0Slider", canvas.width);
+    setSliderMax("topEdgeCutoff0Slider", canvas.height);
+    setSliderMax("bottomEdgeCutoff0Slider", canvas.height);
+    setSliderMax("rightEdgeCutoff1Slider", canvas.width);
+    setSliderMax("leftEdgeCutoff1Slider", canvas.width);
+    setSliderMax("topEdgeCutoff1Slider", canvas.height);
+    setSliderMax("bottomEdgeCutoff1Slider", canvas.height);
 }
 
 // Load the MoveNet body tracking model
@@ -57,10 +61,10 @@ async function trackPoses(detector, imgId, canvasId) {
     const ctx = canvas.getContext('2d');
 
     async function detect() {
-        const rightEdgeCutoff = parseInt(document.getElementById('rightEdgeCutoffSlider').value);
-        const leftEdgeCutoff = parseInt(document.getElementById('leftEdgeCutoffSlider').value);
-        const topEdgeCutoff = parseInt(document.getElementById('topEdgeCutoffSlider').value);
-        const bottomEdgeCutoff = parseInt(document.getElementById('bottomEdgeCutoffSlider').value);
+        const rightEdgeCutoff = canvasId === "canvas0_duplicate" ? parseInt(document.getElementById('rightEdgeCutoff0Slider').value):parseInt(document.getElementById('rightEdgeCutoff1Slider').value)
+        const leftEdgeCutoff = canvasId === "canvas0_duplicate" ? parseInt(document.getElementById('leftEdgeCutoff0Slider').value):parseInt(document.getElementById('leftEdgeCutoff1Slider').value)
+        const topEdgeCutoff = canvasId === "canvas0_duplicate" ? parseInt(document.getElementById('topEdgeCutoff0Slider').value):parseInt(document.getElementById('topEdgeCutoff1Slider').value)
+        const bottomEdgeCutoff = canvasId === "canvas0_duplicate" ? parseInt(document.getElementById('bottomEdgeCutoff0Slider').value):parseInt(document.getElementById('bottomEdgeCutoff1Slider').value)
         
         if (poseCheckbox.checked || domesticCheckbox.checked) {
             updateFPS();

@@ -439,7 +439,7 @@ export function handlePixelMovement(canvas, ctx) {
     const pixelInfo = document.getElementById('pixelInfo'); // Grab the pixelInfo div
 
     // Draw the pixel at its current position
-    function drawPixel() {
+    function drawPixel(dmxChannel) {
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, canvas.width, canvas.height); // Clear the canvas
         ctx.fillStyle = 'black'; // Set the color of the pixel
@@ -450,7 +450,7 @@ export function handlePixelMovement(canvas, ctx) {
         const currentRow = Math.floor(pixelY / pixelSize);
 
         // Update the pixelInfo div with the current column and row
-        pixelInfo.innerHTML = `Col: ${currentCol}, Row: ${currentRow}`;
+        pixelInfo.innerHTML = `Col: ${currentCol}, Row: ${currentRow}, DMXChannel: ${dmxChannel}`;
 
         drawToPixelatedCanvas(1);
     }
@@ -482,15 +482,52 @@ export function handlePixelMovement(canvas, ctx) {
                 pixelY = canvas.height - pixelSize; // Prevent going off the bottom
             }
         }
-        drawPixel(); // Redraw the pixel in the new position
-    }
+            // Fetch DMX channel associated with current pixelX and pixelY
+            fetch('http://localhost:3000/get-dmx-channel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ x: pixelX/10, y: pixelY/10 }) // Send the current x and y positions
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.dmxChannel) {
+                    // Pass the DMX channel to drawPixel function to redraw the pixel
+                    drawPixel(data.dmxChannel);
+                } else {
+                    console.error('No DMX channel found for the current position');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching DMX channel:', error);
+            });
+        }
 
     // Attach the keydown event listener
     window.addEventListener('keydown', handleKeyPress);
 
     // Initial draw of the pixel
-    drawPixel();
-
+// Fetch DMX channel associated with current pixelX and pixelY
+fetch('http://localhost:3000/get-dmx-channel', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ x: 0, y: 0 }) // Send the current x and y positions
+})
+.then(response => response.json())
+.then(data => {
+    if (data.dmxChannel) {
+        // Pass the DMX channel to drawPixel function to redraw the pixel
+        drawPixel(data.dmxChannel);
+    } else {
+        console.error('No DMX channel found for the current position');
+    }
+})
+.catch(error => {
+    console.error('Error fetching DMX channel:', error);
+});
     // Return a function to stop pixel movement and remove event listeners
     return function stopPixelMovement() {
         window.removeEventListener('keydown', handleKeyPress); // Remove the event listener

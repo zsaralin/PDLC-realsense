@@ -22,16 +22,18 @@ function loadConfig() {
 
 // Function to update minZ and maxZ sliders to the backend
 function updateDepthThresholds() {
-    const minZ = parseFloat(document.getElementById('minZSlider').value);
-    const maxZ = parseFloat(document.getElementById('maxZSlider').value);
+    const minZ0 = parseFloat(document.getElementById('minZ0Slider').value);
+    const maxZ0 = parseFloat(document.getElementById('maxZ0Slider').value);
+    const minZ1 = parseFloat(document.getElementById('minZ0Slider').value);
+    const maxZ1 = parseFloat(document.getElementById('maxZ0Slider').value);
 
     // Send minZ to the backend
-    fetch('http://localhost:5000/update_minZ', {
+    fetch('http://localhost:5000/update_minZ0', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ minZ: minZ }),
+        body: JSON.stringify({ minZ0: minZ0 }),
     })
     .then(response => response.json())
     .then(data => {
@@ -42,12 +44,44 @@ function updateDepthThresholds() {
     });
 
     // Send maxZ to the backend
-    fetch('http://localhost:5000/update_maxZ', {
+    fetch('http://localhost:5000/update_maxZ0', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ maxZ: maxZ }),
+        body: JSON.stringify({ maxZ0: maxZ0 }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('maxZ updated:', data);
+    })
+    .catch(error => {
+        console.error('Error updating maxZ:', error);
+    });
+
+    // Send minZ to the backend
+    fetch('http://localhost:5000/update_minZ1', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ minZ1: minZ1 }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('minZ updated:', data);
+    })
+    .catch(error => {
+        console.error('Error updating minZ:', error);
+    });
+
+    // Send maxZ to the backend
+    fetch('http://localhost:5000/update_maxZ1', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ maxZ1: maxZ1 }),
     })
     .then(response => response.json())
     .then(data => {
@@ -112,11 +146,17 @@ function addSliderControls(slider) {
 
 // Add event listeners to minZ and maxZ sliders to update backend on slider changes
 function addDepthSliderListeners() {
-    const minZSlider = document.getElementById('minZSlider');
-    const maxZSlider = document.getElementById('maxZSlider');
+    const minZ0Slider = document.getElementById('minZ0Slider');
+    const maxZ0Slider = document.getElementById('maxZ0Slider');
 
-    minZSlider.addEventListener('input', updateDepthThresholds);
-    maxZSlider.addEventListener('input', updateDepthThresholds);
+    minZ0Slider.addEventListener('input', updateDepthThresholds);
+    maxZ0Slider.addEventListener('input', updateDepthThresholds);
+
+    const minZ1Slider = document.getElementById('minZ1Slider');
+    const maxZ1Slider = document.getElementById('maxZ1Slider');
+
+    minZ1Slider.addEventListener('input', updateDepthThresholds);
+    maxZ1Slider.addEventListener('input', updateDepthThresholds);
 }
 
 // Setup sliders dynamically
@@ -156,9 +196,8 @@ export function setSliderMax(sliderId, max) {
 function handleKeyPress(event) {
     // List of all checkbox IDs
     const checkboxes = [
-        'poseCheckbox', 'radialAnimCheckbox', 'videoCheckbox', 
-        'videoCheckbox0', 'videoCheckbox1', 'videoCheckbox2', 
-        'videoCheckbox3', 'videoCheckbox4', 'domesticCheckbox', 
+        'poseCheckbox', 'radialAnimCheckbox',
+         'domesticCheckbox', 
         'whiteCheckbox', 'blackCheckbox', 'greyCheckbox', 
         'fadeAnimCheckbox', 'gradientAnimCheckbox', 'radialFadeAnimCheckbox'
     ];
@@ -183,11 +222,6 @@ function handleKeyPress(event) {
             radialAnimCheckbox.dispatchEvent(new Event('change')); // Trigger 'change' event
             break;
         case '3':
-            const videoCheckbox = document.getElementById('videoCheckbox');
-            videoCheckbox.checked = true;
-            videoCheckbox.dispatchEvent(new Event('change')); // Trigger 'change' event
-            break;
-        case '4':
             const domesticCheckbox = document.getElementById('domesticCheckbox');
             domesticCheckbox.checked = true;
             domesticCheckbox.dispatchEvent(new Event('change')); // Trigger 'change' event
@@ -195,4 +229,17 @@ function handleKeyPress(event) {
         default:
             break;
     }
+}
+
+var coll = document.getElementsByClassName("collapsible");
+for (var i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.display === "block") {
+            content.style.display = "none";
+        } else {
+            content.style.display = "block";
+        }
+    });
 }

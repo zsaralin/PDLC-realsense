@@ -84,6 +84,22 @@ app.post('/set-dmx', async (req, res) => {
     }
 });
 
+app.post('/get-dmx-channel', (req, res) => {
+    const { x, y } = req.body;
+    console.log(x,y)
+    if (typeof x !== 'number' || typeof y !== 'number') {
+        return res.status(400).json({ error: 'x and y must be numbers' });
+    }
+
+    const mapping = csvMapping0[`${y}-${x}`];
+
+    if (mapping) {
+        const { dmxChannel } = mapping;
+        res.json({ dmxChannel });
+    } else {
+        res.status(404).json({ error: 'No mapping found for the given x and y values' });
+    }
+});
 // Start the server
 const PORT = 3000; // Port number for the HTTP server
 app.listen(PORT, () => {

@@ -14,7 +14,7 @@ html, body {
     height: 100vh; /* Full viewport height */
     box-sizing: border-box;
     /* border-right: 2px solid #ccc; */
-    font-size: 10px;
+    font-size: 15px;
     overflow-y: auto; /* Enable scrolling within the side panel */
 }
 .slider-container{
@@ -119,4 +119,28 @@ canvas {
 .mirrored {
     transform: scaleX(-1);
     -webkit-transform: scaleX(-1); /* For Safari */
+}
+
+.collapsible {
+    background-color: #777;
+    color: white;
+    font-family: inherit;
+    cursor: pointer;
+    /*padding: 10px;*/
+    width: 100%;
+    border: none;
+    /*text-align: left;*/
+    outline: none;
+    /*font-size: 15px;*/
+}
+
+.active, .collapsible:hover {
+    background-color: #555;
+}
+
+.content {
+    /*padding: 0 18px;*/
+    display: none;
+    overflow: hidden;
+    background-color: #f1f1f1;
 }
