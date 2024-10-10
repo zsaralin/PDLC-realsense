@@ -43,16 +43,25 @@ function initializeCanvasAndSliders(canvasId) {
 
 // Load the MoveNet body tracking model
 async function loadModel() {
-    const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, {
-        modelType: poseDetection.movenet.modelType.MULTIPOSE_LIGHTNING,
-        maxPoses: 6 , // Set the number of poses to the maximum MoveNet can handle (up to 6),
-        enableSmoothing: true, // Set to true to reduce jitter in keypoints
-        inputResolution: { width: 640, height: 480 } // Set the resolution of the input images
+    try {
+        console.log("Starting to load MoveNet model...");
 
+        const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, {
+            modelType: poseDetection.movenet.modelType.MULTIPOSE_LIGHTNING,
+            // modelUrl: './cdns/movenet/model.json', // Ensure this path is correct
+            maxPoses: 6, // Set the number of poses to the maximum MoveNet can handle (up to 6),
+            enableSmoothing: true, // Set to true to reduce jitter in keypoints
+            inputResolution: { width: 640, height: 480 } // Set the resolution of the input images
+        });
 
-    });
-    return detector;
+        console.log("Model loaded successfully:", detector);
+        return detector;
+
+    } catch (error) {
+        console.error("Error while loading the model:", error);
+    }
 }
+
 
 // Function to perform body tracking on a given image and canvas
 async function trackPoses(detector, imgId, canvasId) {

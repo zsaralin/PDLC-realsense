@@ -24,8 +24,8 @@ function loadConfig() {
 function updateDepthThresholds() {
     const minZ0 = parseFloat(document.getElementById('minZ0Slider').value);
     const maxZ0 = parseFloat(document.getElementById('maxZ0Slider').value);
-    const minZ1 = parseFloat(document.getElementById('minZ0Slider').value);
-    const maxZ1 = parseFloat(document.getElementById('maxZ0Slider').value);
+    const minZ1 = parseFloat(document.getElementById('minZ1Slider').value);
+    const maxZ1 = parseFloat(document.getElementById('maxZ1Slider').value);
 
     // Send minZ to the backend
     fetch('http://localhost:5000/update_minZ0', {
