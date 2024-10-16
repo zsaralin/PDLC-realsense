@@ -53,6 +53,10 @@ except Exception as e:
 # Launch the external app right after attempting to start the cameras
 try:
     subprocess.Popen(
+    [r"C:\\Program Files\Derivative\\TouchDesigner\bin\\TouchDesigner.exe", r"C:\\GlassTec_TouchDesigner\\PDLCRENDERS.toe"]
+)   
+
+    subprocess.Popen(
         r"C:\\Users\\antim\\OneDrive\\Desktop\\pdlc-realsense\\PDLC-realsense\\dist\win-unpacked\\pdlc.exe"
     )
     print("App launched successfully.")
